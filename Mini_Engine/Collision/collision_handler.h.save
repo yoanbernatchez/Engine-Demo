@@ -1,0 +1,9 @@
+#ifndef COLLISION_HANDLER_H_INCLUDED
+#define COLLISION_HANDLER_H_INCLUDED
+
+#include "../chunk.h"
+#include "character_header.h"
+
+Collision handleCollision(Chunk chunk[], Character character, KeyEvent kevent);
+
+#endif // COLLISION_HANDLER_H_INCLUDED

@@ -1,0 +1,237 @@
+# depslib dependency file v1.0
+1601916606 source:c:\users\yoan\desktop\engine demo\mini_engine\characters\character.cpp
+	<stdio.h>
+	<stdlib.h>
+	<math.h>
+	<SDL.h>
+	"character.h"
+
+1601900770 c:\users\yoan\desktop\engine demo\mini_engine\characters\character.h
+	"../Engine/globals.h"
+
+1601922045 c:\users\yoan\desktop\engine demo\mini_engine\engine\globals.h
+	<SDL.h>
+	<stdbool.h>
+
+1601699627 source:c:\users\yoan\desktop\engine demo\mini_engine\chunks\pathfinding.cpp
+	<stdio.h>
+	<stdlib.h>
+	"../Engine/globals.h"
+	"pathfinding.h"
+
+1601698340 c:\users\yoan\desktop\engine demo\mini_engine\chunks\pathfinding.h
+	"../Engine/globals.h"
+
+1601448157 source:c:\users\yoan\desktop\engine demo\mini_engine\collision\collision_handler.cpp
+	<SDL.h>
+	<stdio.h>
+	<stdlib.h>
+	<math.h>
+	<stdbool.h>
+	"collision_handler.h"
+
+1601434466 c:\users\yoan\desktop\engine demo\mini_engine\collision\collision_handler.h
+	"../Chunks/chunk.h"
+	"../Characters/character.h"
+
+1601899864 c:\users\yoan\desktop\engine demo\mini_engine\chunks\chunk.h
+	<SDL.h>
+	"../Engine/globals.h"
+
+1601206718 source:c:\users\yoan\desktop\engine demo\mini_engine\events\event_handler.cpp
+	"events.h"
+	<stdio.h>
+
+1600905169 c:\users\yoan\desktop\engine demo\mini_engine\events\events.h
+	<SDL.h>
+	<stdbool.h>
+	"../Engine/globals.h"
+
+1601526477 source:c:\users\yoan\desktop\engine demo\mini_engine\file_utilities\file_utilities.cpp
+	<string.h>
+	"file_utilities.h"
+
+1601358991 c:\users\yoan\desktop\engine demo\mini_engine\file_utilities\file_utilities.h
+	<stdio.h>
+	<stdbool.h>
+
+1601608474 source:c:\users\yoan\desktop\engine demo\mini_engine\hud\window.cpp
+	<stdio.h>
+	<stdlib.h>
+	<SDL_image.h>
+	"window.h"
+
+1601347921 c:\users\yoan\desktop\engine demo\mini_engine\hud\window.h
+	<stdbool.h>
+	<SDL.h>
+	<SDL_ttf.h>
+
+1601702072 source:c:\users\yoan\desktop\engine demo\mini_engine\tests\test_character.cpp
+	<assert.h>
+	<stdbool.h>
+	<stdio.h>
+	"../Characters/character.h"
+	"test_character.h"
+
+1601526477 c:\users\yoan\desktop\engine demo\mini_engine\tests\test_character.h
+
+1601914876 source:c:\users\yoan\desktop\engine demo\mini_engine\chunks\objects.cpp
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"../File_Utilities/file_utilities.h"
+	"chunk.h"
+	"objects.h"
+
+1601914920 c:\users\yoan\desktop\engine demo\mini_engine\chunks\objects.h
+	"../Engine/globals.h"
+
+1601705386 source:c:\users\yoan\desktop\engine demo\mini_engine\tests\test_chunk.cpp
+	<assert.h>
+	<string.h>
+	"../Chunks/chunk.h"
+	"test_chunk.h"
+
+1601610563 c:\users\yoan\desktop\engine demo\mini_engine\tests\test_chunk.h
+
+1601701556 source:c:\users\yoan\desktop\engine demo\mini_engine\tests\test_pathfinding.cpp
+	<stdio.h>
+	<assert.h>
+	"../Chunks/chunk.h"
+	"../Chunks/tile.h"
+	"../Chunks/pathfinding.h"
+	"test_pathfinding.h"
+
+1601698598 c:\users\yoan\desktop\engine demo\mini_engine\chunks\tile.h
+	"../Engine/globals.h"
+
+1601697567 c:\users\yoan\desktop\engine demo\mini_engine\tests\test_pathfinding.h
+
+1601186707 source:c:\users\yoan\desktop\engine demo\mini_engine\tests\test_time.cpp
+	<stdio.h>
+	<time.h>
+	<assert.h>
+	"test_time.h"
+	"../Time/time.h"
+
+1601185417 c:\users\yoan\desktop\engine demo\mini_engine\tests\test_time.h
+
+1601351891 c:\users\yoan\desktop\engine demo\mini_engine\time\time.h
+	<stdbool.h>
+
+1601610563 source:c:\users\yoan\desktop\engine demo\mini_engine\tests\test_window.cpp
+	<assert.h>
+	<SDL.h>
+	"test_window.h"
+	"../HUD/window.h"
+
+1601202380 c:\users\yoan\desktop\engine demo\mini_engine\tests\test_window.h
+
+1601704468 source:c:\users\yoan\desktop\engine demo\mini_engine\tests\tests.cpp
+	<stdio.h>
+	"tests.h"
+	"test_window.h"
+	"test_file_utilities.h"
+	"test_character.h"
+	"test_pathfinding.h"
+	"test_chunk.h"
+
+1601704450 c:\users\yoan\desktop\engine demo\mini_engine\tests\tests.h
+
+1601358991 c:\users\yoan\desktop\engine demo\mini_engine\tests\test_file_utilities.h
+
+1601210174 source:c:\users\yoan\desktop\engine demo\mini_engine\time\time.cpp
+	<time.h>
+	"time.h"
+
+1601702907 source:c:\users\yoan\desktop\engine demo\mini_engine\chunks\tile.cpp
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+	<string.h>
+	"../File_Utilities/file_utilities.h"
+	"tile.h"
+	"chunk.h"
+
+1601346399 source:c:\users\yoan\desktop\engine demo\mini_engine\yokoisland\hud_presets.cpp
+	<stdio.h>
+	<stdlib.h>
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_ttf.h>
+	"../HUD/window.h"
+
+1601703750 source:c:\users\yoan\desktop\engine demo\mini_engine\tests\test_file_utilities.cpp
+	<assert.h>
+	<string.h>
+	"test_file_utilities.h"
+	"../File_Utilities/file_utilities.h"
+
+1601925726 source:c:\users\yoan\desktop\engine demo\mini_engine\chunks\chunk.cpp
+	<stdbool.h>
+	<string.h>
+	<SDL.h>
+	"chunk.h"
+	"tile.h"
+	"objects.h"
+	"../File_Utilities/file_utilities.h"
+
+1601926731 source:c:\users\yoan\desktop\engine demo\demo\main.cpp
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+	<windows.h>
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_ttf.h>
+	"character/player.h"
+	"objects/objects.h"
+	"../Mini_Engine/Render/render.h"
+	"../Mini_Engine/Engine/globals.h"
+	"../Mini_Engine/HUD/window.h"
+	"../Mini_Engine/Time/time.h"
+	"../Mini_Engine/File_Utilities/file_utilities.h"
+	"../Mini_Engine/Chunks/chunk.h"
+	"../Mini_Engine/Chunks/tile.h"
+	"../Mini_Engine/Characters/character.h"
+	"../Mini_Engine/Events/events.h"
+	"../Mini_Engine/Collision/collision_handler.h"
+	"../Mini_Engine/Chunks/pathfinding.h"
+	"../Mini_Engine/Tests/tests.h"
+
+1601704052 source:c:\users\yoan\desktop\engine demo\demo\character\npc.cpp
+
+1601916723 source:c:\users\yoan\desktop\engine demo\demo\character\player.cpp
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+	<SDL.h>
+	<SDL_image.h>
+	"player.h"
+	"../../Mini_Engine/Engine/globals.h"
+	"../../Mini_Engine/Time/time.h"
+
+1601916198 c:\users\yoan\desktop\engine demo\demo\character\player.h
+	"../../Mini_Engine/Characters/character.h"
+
+1601925310 source:c:\users\yoan\desktop\engine demo\mini_engine\render\render.cpp
+	<stdio.h>
+	<SDL.h>
+	<limits.h>
+	"../Characters/character.h"
+	"render.h"
+
+1601922641 c:\users\yoan\desktop\engine demo\mini_engine\render\render.h
+	"../Engine/globals.h"
+
+1601914080 source:c:\users\yoan\desktop\engine demo\demo\objects\birds.cpp
+
+1601921956 source:c:\users\yoan\desktop\engine demo\demo\objects\objects.cpp
+	<stdio.h>
+	<SDL.h>
+	<SDL_image.h>
+	"../../Mini_Engine/Chunks/chunk.h"
+	"objects.h"
+
+1601917342 c:\users\yoan\desktop\engine demo\demo\objects\objects.h
+

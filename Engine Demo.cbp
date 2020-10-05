@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Engine Demo" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/Engine Demo" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/Engine Demo" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add directory="C:/SDL/SDL2-2.0.8/i686-w64-mingw32/include" />
+		</Compiler>
+		<Linker>
+			<Add library="mingw32" />
+			<Add library="SDL2main" />
+			<Add library="SDL2.dll" />
+			<Add library="user32" />
+			<Add library="gdi32" />
+			<Add library="winmm" />
+			<Add library="dxguid" />
+			<Add directory="C:/SDL/SDL2-2.0.8/i686-w64-mingw32/lib" />
+		</Linker>
+		<ExtraCommands>
+			<Add after="XCOPY $(#sdl2)\bin\*.dll $(TARGET_OUTPUT_DIR) /D /Y" />
+		</ExtraCommands>
+		<Unit filename="Demo/character/npc.cpp" />
+		<Unit filename="Demo/character/npc.h" />
+		<Unit filename="Demo/character/player.cpp" />
+		<Unit filename="Demo/character/player.h" />
+		<Unit filename="Demo/main.cpp" />
+		<Unit filename="Demo/objects/birds.cpp" />
+		<Unit filename="Demo/objects/birds.h" />
+		<Unit filename="Demo/objects/objects.cpp" />
+		<Unit filename="Demo/objects/objects.h" />
+		<Unit filename="Mini_Engine/Characters/character.cpp" />
+		<Unit filename="Mini_Engine/Characters/character.h" />
+		<Unit filename="Mini_Engine/Chunks/chunk.cpp" />
+		<Unit filename="Mini_Engine/Chunks/chunk.h" />
+		<Unit filename="Mini_Engine/Chunks/objects.cpp" />
+		<Unit filename="Mini_Engine/Chunks/objects.h" />
+		<Unit filename="Mini_Engine/Chunks/pathfinding.cpp" />
+		<Unit filename="Mini_Engine/Chunks/pathfinding.h" />
+		<Unit filename="Mini_Engine/Chunks/tile.cpp" />
+		<Unit filename="Mini_Engine/Chunks/tile.h" />
+		<Unit filename="Mini_Engine/Collision/collision_handler.cpp" />
+		<Unit filename="Mini_Engine/Collision/collision_handler.h" />
+		<Unit filename="Mini_Engine/Engine/globals.h" />
+		<Unit filename="Mini_Engine/Events/event_handler.cpp" />
+		<Unit filename="Mini_Engine/Events/events.h" />
+		<Unit filename="Mini_Engine/File_Utilities/file_utilities.cpp" />
+		<Unit filename="Mini_Engine/File_Utilities/file_utilities.h" />
+		<Unit filename="Mini_Engine/HUD/window.cpp" />
+		<Unit filename="Mini_Engine/HUD/window.h" />
+		<Unit filename="Mini_Engine/Render/render.cpp" />
+		<Unit filename="Mini_Engine/Render/render.h" />
+		<Unit filename="Mini_Engine/Tests/test_character.cpp" />
+		<Unit filename="Mini_Engine/Tests/test_character.h" />
+		<Unit filename="Mini_Engine/Tests/test_chunk.cpp" />
+		<Unit filename="Mini_Engine/Tests/test_chunk.h" />
+		<Unit filename="Mini_Engine/Tests/test_file_utilities.cpp" />
+		<Unit filename="Mini_Engine/Tests/test_file_utilities.h" />
+		<Unit filename="Mini_Engine/Tests/test_pathfinding.cpp" />
+		<Unit filename="Mini_Engine/Tests/test_pathfinding.h" />
+		<Unit filename="Mini_Engine/Tests/test_time.cpp" />
+		<Unit filename="Mini_Engine/Tests/test_time.h" />
+		<Unit filename="Mini_Engine/Tests/test_window.cpp" />
+		<Unit filename="Mini_Engine/Tests/test_window.h" />
+		<Unit filename="Mini_Engine/Tests/tests.cpp" />
+		<Unit filename="Mini_Engine/Tests/tests.h" />
+		<Unit filename="Mini_Engine/Time/time.cpp" />
+		<Unit filename="Mini_Engine/Time/time.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

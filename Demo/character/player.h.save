@@ -1,0 +1,7 @@
+#ifndef PLAYER_H_INCLUDED
+#define PLAYER_H_INCLUDED
+
+SDL_Texture * getVillagerTexture(SDL_Renderer *renderer);
+void playerWalk(Character *character, EngineEvent event);
+
+#endif // PLAYER_H_INCLUDED

@@ -1,0 +1,6 @@
+#ifndef TEST_PATHFINDING_H_INCLUDED
+#define TEST_PATHFINDING_H_INCLUDED
+
+void testPathfinding(void);
+
+#endif // TEST_PATHFINDING_H_INCLUDED
