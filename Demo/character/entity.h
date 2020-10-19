@@ -1,0 +1,53 @@
+#ifndef ENTITY_H_INCLUDED
+#define ENTITY_H_INCLUDED
+
+#include <SDL.h>
+#include "../../Mini_Engine/Characters/character.h"
+#include "../../Mini_Engine/Chunks/pathfinding.h"
+
+/** Enumeration of the different action IDs a character can have. */
+enum EntityActionType {ENTITY_IDLE, ENTITY_WALK};
+
+typedef struct _Entity {
+    EngCharacter character;
+    EngPath *path;
+    int path_id;
+    int step;
+    int saved_x;
+    int saved_y;
+} Entity;
+/**< Structure containing character information, path and saved coordinates. */
+
+/**
+ * @brief Finds, loads and returns the sprite sheet used for villagers.
+ *
+ * @param renderer: Renderer used to create a texture.
+ *
+ * @return A villager sprite sheet texture.
+ */
+SDL_Texture * entity_get_villager_texture (SDL_Renderer *renderer);
+
+/**
+ * @brief Loads presets such as coordinates, size and more to an array of
+ *        entities.
+ *
+ * @param window: SDL_Window used to center some entities on screen.
+ * @param entity: An array of entities to load presets for.
+ */
+void entity_load_presets (SDL_Window *window, Entity entity[]);
+
+/**
+ * @brief Updates the source coordinates of a villager's sprite.
+ *
+ * @param character: Character we are updating the source coordinates of.
+ */
+void entity_villager_update_src (EngCharacter *character);
+
+/**
+ * @brief Destroys and deallocated memory for an entity.
+ *
+ * @param entity: Pointer to an entity to destroy.
+ */
+void entity_destroy (Entity *entity);
+
+#endif /* ENTITY_H_INCLUDED */

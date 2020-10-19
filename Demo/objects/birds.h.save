@@ -1,6 +1,0 @@
-#ifndef BIRDS_H_INCLUDED
-#define BIRDS_H_INCLUDED
-
-
-
-#endif // BIRDS_H_INCLUDED

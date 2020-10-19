@@ -1,59 +1,58 @@
 #ifndef TIME_H_INCLUDED
 #define TIME_H_INCLUDED
 
-/** @def Affects how fast the game's time is relative to the real world. */
-#define TIMERATIO 2
+/** Affects how fast the game's time is relative to the real world. */
+#define ENG_TIME_RATIO 2
 
 #include <stdbool.h>
 
 /** Time types. */
-enum timeType{DAY, HOUR, MINUTE, SECOND, MILLISECOND};
+enum EngTimeType{ENG_DAY, ENG_HOUR, ENG_MINUTE, ENG_SECOND, ENG_MILLISECOND};
 
-typedef struct _time
-{
+typedef struct _EngTime {
     int day;
     int hour;
     int minute;
     int second;
     int millisecond;
-} Time;
-/**< Time structure containing time information in days, hours, minutes. */
+} EngTime;
+/**< Time structure containing time information in hours, minutes, etc. */
 
 /**
  * @return The current real clock time in seconds since the start of the
  *         program.
  *
- * @sa getGameTime()
+ * @sa eng_get_game_time ()
  */
-double timeGetRealTime(void);
+double eng_get_real_time (void);
 
 /**
  * @return The real clock time in seconds since start of program, affected by
  *         a time ratio (game time ratio).
  *
- * @sa getRealTime()
+ * @sa eng_get_real_time ()
  */
-double timeGetGameTime(void);
+double eng_get_game_time (void);
 
 /**
- * @brief Updates a Time structure to the current real time.
+ * @brief Returns a Time structure that contains current real time information.
  *
- * @param realTime:  Time structure in which we store real time in the form of
- *                   days, hours, minutes, seconds and milliseconds.
+ * @return Time structure that contains real time data in the form of days,
+ *         hours, minutes, seconds and milliseconds.
  *
- * @sa timeUpdateIngameTime()
+ * @sa eng_get_game_time_struct ()
  */
-void timeUpdateRealTime(Time *realTime);
+EngTime eng_get_real_time_struct (void);
 
 /**
- * @brief Updates a Time structure to the current game time.
+ * @brief Returns a Time structure that contains current game time information.
  *
- * @param gameTime:  Time structure in which we store game time in the form of
- *                   days, hours, minutes, seconds and milliseconds.
+ * @return Time structure that contains game time data in the form of days,
+ *         hours, minutes, seconds and milliseconds.
  *
- * @sa timeUpdateRealTime()
+ * @sa eng_get_real_time_struct()
  */
-void timeUpdateIngameTime(Time *gameTime);
+EngTime eng_get_game_time_struct (void);
 
 /**
  * @brief Tests if a certain amount of time has passed since last checking the
@@ -62,14 +61,14 @@ void timeUpdateIngameTime(Time *gameTime);
  * @param timer:     Pointer to a double representing a timer with which we
  *                   will test if a certain amount of time has elapsed and
  *                   update if so.
- * @param realTime:  Boolean deciding if we work with real time or game time.
+ * @param real_time: Boolean deciding if we check for real time or game time.
  * @param type:      The time type to check for, SECONDS, MILLISECONDS, etc.
  * @param amount:    Amount of (type: SECONDS, MILLISECONDS, etc) to test for.
  *
  * @return True if the amount of (type: SECONDS, MILLISECONDS, etc) has passed
  *         since last calling timer, false otherwise.
  */
-bool timeHasElapsed(double *timer, bool realTime, timeType type,
-                    double amount);
+bool eng_has_time_elapsed (double *timer, bool real_time,
+                           EngTimeType type, double amount);
 
 #endif /* TIME_H_INCLUDED */

@@ -4,40 +4,49 @@
 #include "../Engine/globals.h"
 
 /**
- * @brief Stores tile data coming from a file to a chunk.
+ * @brief Stores tile data coming from a chunk file to a chunk.
  *
- * @param chunk: Array of chunks where the tile data will be stored.
- * @param chunkX: The chunk id in x containing the information we are trying to load.
- * @param chunkY: The chunk id in y containing the information we are trying to load.
- * @param chunkIndex: The index of the chunk array to which the tile data is saved to.
+ * @param chunk: The chunk we load tiles to.
  */
-void tileLoadTiles(Chunk *chunk);
+void eng_tile_load_tiles (EngChunk *chunk);
 
 /**
  * @brief Sets the collision of all tiles with a certain id to true or false.
  *
- * @param chunk:        The array of chunk to modify the collision of.
- * @param id:           The tile id to turn on collision.
- * @param hasCollision: True if we want to give collision, false if we 
+ * @param chunk:         The array of chunk to modify the collision of.
+ * @param id:            The tile id to turn on collision for.
+ * @param has_collision: True if we want to give collision, false if we don't.
+ *
+ * @sa eng_tile_reset_collision ()
  */
-void tileSetCollision(Chunk chunk[], int id, bool hasCollision);
+void eng_tile_set_collision (EngChunk chunk[], int id, bool has_collision);
+
+/**
+ * @brief Resets the collision of a chunk to false.
+ *
+ * @param chunk: Chunk in which to reset collision on.
+ *
+ * @sa eng_tile_set_collision ()
+ */
+void eng_tile_reset_collision (EngChunk *chunk);
 
 /**
  * @brief Modifies the value of a tile in a chunk text file.
  *
- * @param chunkX: The chunk id in x for the file to modify.
- * @param chunkY: The chunk id in y for the file to modify.
- * @param tileX:  The tile in x to be modify in the chunk file.
- * @param tileY:  The tile in y to be modify in the chunk file.
- * @param newId:  New tile id to replace the old tile id.
+ * @param chunk_x: The chunk id in x for the file to modify.
+ * @param chunk_y: The chunk id in y for the file to modify.
+ * @param tile_x:  The tile in x to be modify in the chunk file.
+ * @param tile_y:  The tile in y to be modify in the chunk file.
+ * @param new_id:  New tile id to replace the old tile id.
  */
-void tileModifyFileId(int chunkX, int chunkY, int tileX, int tileY, int newId);
+void eng_tile_modify_file_id (int chunk_x, int chunk_y, int tile_x, int tile_y,
+                              int new_id);
 
 /**
  * @brief Creates an initializes a tile, then returns it.
  *
  * @return A new initialized tile.
  */
-Tile tileCreateTile(void);
+EngTile eng_tile_create_tile (void);
 
 #endif /* TILE_H_INCLUDED */

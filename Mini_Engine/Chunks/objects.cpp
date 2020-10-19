@@ -1,9 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include "../File_Utilities/file_utilities.h"
 #include "chunk.h"
 #include "objects.h"
+#include "../File_Utilities/file_utilities.h"
 
 /*---------------------------------------------------------------------------*/
 /* Local function prototypes                                                 */
@@ -11,149 +10,151 @@
 
 /**
  * @brief Allocates memory for the object dynamic array in a chunk, size
- *        depends on the value of nbObjects.
+ *        depends on the value of nb_objects.
  *
- * @param chunk:      Array of chunks each containing objects.
- * @param chunkIndex: Defines which chunk of data will be modified.
- * @param nbObjects:  The number of objects to allocate memory for (if 0, we
- *                    free the memory instead).
+ * @param chunk:       Array of chunks each containing objects.
+ * @param chunk_index: Defines which chunk of data will be modified.
+ * @param nb_objects:  The number of objects to allocate memory for (if 0, we
+ *                     free the memory instead).
  */
-static void allocateObjects(Chunk *chunk, int nbObjects);
+static void allocate_objects (EngChunk *chunk, int nb_objects);
 
 /*---------------------------------------------------------------------------*/
-/* Object functions implementation                                           */
+/* Object function implementations                                           */
 /*---------------------------------------------------------------------------*/
 
 /* Modifies the object data stored in a chunk file with new values. */
 void
-objectModifyFileObject(int chunkX, int chunkY, int index, int id,
-                            int x, int y)
+eng_object_modify_file_object (int chunk_x, int chunk_y, int index, int id,
+                               int x, int y)
 {
-    int cursorIndex = 0;
-    int startIndex = 0;
-    int endIndex = 0;
-    int nbObjects = 0;
+    int cursor_index = 0;
+    int start_index = 0;
+    int end_index = 0;
+    int nb_objects = 0;
     int comma = 0;
-    const char* fileName = chunkGetFileName(chunkX, chunkY);
-    char newData[20];
+    const char *file_name = eng_chunk_get_file_name (chunk_x, chunk_y);
+    char new_data[20];
     char c = '!';
 
-    nbObjects = objectGetNbObjects(chunkX, chunkY);
-    cursorIndex = fileGetIndexAfterString(fileName, "objects{");
+    nb_objects = eng_object_get_nb_objects (chunk_x, chunk_y);
+    cursor_index = eng_file_get_index_after_string (file_name, "objects{");
 
-    FILE* file = fopen(fileName, "r");
+    FILE *file = fopen (file_name, "r");
 
-    if (file != NULL && cursorIndex >= 0 && nbObjects > 0 && index < nbObjects) {
+    if (file != NULL && cursor_index >= 0 && nb_objects > 0 &&
+        index < nb_objects) {
         /* Advance file cursor to object data. */
-        fseek(file, cursorIndex, SEEK_SET);
+        fseek (file, cursor_index, SEEK_SET);
 
         /* Find the starting position for modification. */
-        while (comma < index && c != '}' && !feof(file)) {
-            c = fgetc(file);
+        while (comma < index && c != '}' && !feof (file)) {
+            c = fgetc (file);
 
-            if (c == ',') {
+            if (c == ',')
                 comma++;
-            }
         }
 
-        startIndex = ftell(file);
+        start_index = ftell (file);
 
         /* Advance so that the character is not a comma anymore. */
-        c = fgetc(file);
+        c = fgetc (file);
 
         /*
          * Find the ending position for modification by finding the next comma
          * or }.
          */
-        while (c != ',' && c != '}' && !feof(file)) {
-            c = fgetc(file);
-        }
+        while (c != ',' && c != '}' && !feof (file))
+            c = fgetc (file);
 
-        endIndex = ftell(file);
+        end_index = ftell (file);
 
-        fileCloseFile(file);
+        eng_file_close_file (file);
 
         /* Modify data. */
-        snprintf(newData, 20, "%d %d %d", id, x, y);
-        fileReplaceWithString(fileName, newData, startIndex, endIndex - 1);
+        snprintf (new_data, 20, "%d %d %d", id, x, y);
+        eng_file_replace_with_string (file_name, new_data, start_index,
+                                      end_index - 1);
     }
 
-    fileCloseFile(file);
+    free ((char*) file_name);
+    file = eng_file_close_file (file);
 }
 
 /* Finds the nth object in a chunk file and deletes its data from the file. */
 void
-objectRemoveFileObject(int chunkX, int chunkY, int index)
+eng_object_remove_file_object (int chunk_x, int chunk_y, int index)
 {
-    int cursorIndex = 0;
-    int startIndex = 0;
-    int endIndex = 0;
-    int nbObjects = 0;
+    int cursor_index = 0;
+    int start_index = 0;
+    int end_index = 0;
+    int nb_objects = 0;
     int comma = 0;
-    const char* fileName = chunkGetFileName(chunkX, chunkY);
+    const char *file_name = eng_chunk_get_file_name (chunk_x, chunk_y);
     char c = '!';
 
-    nbObjects = objectGetNbObjects(chunkX, chunkY);
-    cursorIndex = fileGetIndexAfterString(fileName, "objects{");
+    nb_objects = eng_object_get_nb_objects (chunk_x, chunk_y);
+    cursor_index = eng_file_get_index_after_string (file_name, "objects{");
 
-    FILE* file = fopen(fileName, "r");
+    FILE *file = fopen (file_name, "r");
 
-    if (file != NULL && cursorIndex >= 0 && nbObjects > 0 && index < nbObjects) {
+    if (file != NULL && cursor_index >= 0 && nb_objects > 0 &&
+        index < nb_objects) {
         /* Advance file cursor to object data. */
-        fseek(file, cursorIndex, SEEK_SET);
+        fseek (file, cursor_index, SEEK_SET);
 
         /* Find the starting position for the removal. */
-        while (comma < index && c != '}' && !feof(file)) {
-            c = fgetc(file);
+        while (comma < index && c != '}' && !feof (file)) {
+            c = fgetc (file);
 
-            if (c == ',') {
+            if (c == ',')
                 comma++;
-            }
         }
 
-        startIndex = ftell(file);
+        start_index = ftell (file);
 
         /* Advance so that the character is not a comma anymore. */
-        c = fgetc(file);
+        c = fgetc (file);
 
         /*
          * Find the ending position for the removal by finding the next comma
          * or }.
          */
-        while (c != ',' && c != '}' && !feof(file)) {
+        while (c != ',' && c != '}' && !feof (file))
             c = fgetc(file);
-        }
 
-        endIndex = ftell(file);
+        end_index = ftell (file);
 
-        fileCloseFile(file);
+        eng_file_close_file (file);
 
         /*
          * In the case where there is only one object, we remove 1 from
          * endIndex so that the } does not get deleted.
          */
-        if (index == 0 && nbObjects == 1) {
-            fileReplaceWithString(fileName, "", startIndex, endIndex - 1);
+        if (index == 0 && nb_objects == 1) {
+            eng_file_replace_with_string (file_name, "", start_index,
+                                          end_index - 1);
         }
-
         /*
          * If the removed object is the first object in the file, we remove the
          * comma that comes after it.
          */
         else if (index == 0) {
-            fileReplaceWithString(fileName, "", startIndex, endIndex);
+            eng_file_replace_with_string (file_name, "", start_index,
+                                          end_index);
         }
-
         /*
          * If it isn't the first object, we remove the comma that comes before
          * it.
          */
         else {
-            fileReplaceWithString(fileName, "", startIndex - 1, endIndex - 1);
+            eng_file_replace_with_string (file_name, "", start_index - 1,
+                                          end_index - 1);
         }
     }
 
-    fileCloseFile(file);
+    free ((char*) file_name);
+    file = eng_file_close_file (file);
 }
 
 /*
@@ -161,44 +162,47 @@ objectRemoveFileObject(int chunkX, int chunkY, int index)
  * chunk file.
  */
 void
-objectAddFileObject(int chunkX, int chunkY, int id, int x, int y)
+eng_object_add_file_object (int chunk_x, int chunk_y, int id, int x, int y)
 {
-    int cursorIndex = 0;
-    int nbObjects = objectGetNbObjects(chunkX, chunkY);
-
-    const char* fileName = chunkGetFileName(chunkX, chunkY);
-    char newObjectData[100];
+    int cursor_index = 0;
+    int nb_objects = eng_object_get_nb_objects (chunk_x, chunk_y);
+    int buffer_size = 100;
+    const char *file_name = eng_chunk_get_file_name (chunk_x, chunk_y);
+    char new_object_data[buffer_size];
 
     /* Seek the location of object data. */
-    cursorIndex = fileGetIndexAfterString(fileName, "objects{");
+    cursor_index = eng_file_get_index_after_string (file_name, "objects{");
 
-    FILE* file = fopen(fileName, "r");
+    FILE *file = fopen (file_name, "r");
 
-    if (file != NULL && cursorIndex >= 0) {
+    if (file != NULL && cursor_index >= 0) {
         /* Position the file cursor to the end of "objects{". */
-        fseek(file, cursorIndex, SEEK_SET);
-        cursorIndex = ftell(file);
+        fseek (file, cursor_index, SEEK_SET);
+        cursor_index = ftell (file);
 
         /* Ready up newObjectData as formatted text. */
-        if (nbObjects == 0) {
-            snprintf(newObjectData, 100, "%d %d %d", id, x, y);
-        }
+        if (nb_objects == 0)
+            snprintf (new_object_data, buffer_size, "%d %d %d", id, x, y);
         else {
-            snprintf(newObjectData, 100, ",%d %d %d", id, x, y);
+            snprintf (new_object_data, buffer_size, ",%d %d %d", id, x, y);
 
             /* Advance to the end of the object data (before the {). */
-            while(fgetc(file) != '}' && !feof(file)){}
-            cursorIndex = ftell(file) - 1;
+            while (fgetc (file) != '}' && !feof(file)) {
+                /* Advance. */
+            }
+
+            cursor_index = ftell (file) - 1;
         }
 
-        file = fileCloseFile(file);
+        file = eng_file_close_file (file);
 
         /* Paste in file. */
-        fileReplaceWithString(fileName, newObjectData, cursorIndex,
-                              cursorIndex);
+        eng_file_replace_with_string (file_name, new_object_data,
+                                      cursor_index, cursor_index);
     }
 
-    file = fileCloseFile(file);
+    free ((char*) file_name);
+    file = eng_file_close_file (file);
 }
 
 /*
@@ -206,122 +210,125 @@ objectAddFileObject(int chunkX, int chunkY, int id, int x, int y)
  * file.
  */
 int
-objectGetNbObjects(int chunkX, int chunkY)
+eng_object_get_nb_objects (int chunk_x, int chunk_y)
 {
-    int nbObjects = 0;
-    int nbCommas = 0;
-    int cursorIndex = 0;
+    int nb_objects = 0;
+    int nb_commas = 0;
+    int cursor_index = 0;
     char c = '!';
-    const char* fileName = chunkGetFileName(chunkX, chunkY);
+    const char *file_name = eng_chunk_get_file_name (chunk_x, chunk_y);
 
     /* Seek the location of object data. */
-    cursorIndex = fileGetIndexAfterString(fileName, "objects{");
+    cursor_index = eng_file_get_index_after_string (file_name, "objects{");
 
-    FILE* file = fopen(fileName, "r");
+    FILE *file = fopen (file_name, "r");
 
-    if (file != NULL && cursorIndex >= 0) {
+    if (file != NULL && cursor_index >= 0) {
         /* Position the file cursor to the end of "objects{". */
-        fseek(file, cursorIndex, SEEK_SET);
+        fseek (file, cursor_index, SEEK_SET);
 
-        c = fgetc(file);
+        c = fgetc (file);
 
         if (c == '}') {
             /* If the first character read is }, then there is no objects. */
         }
         else {
-            while (c != '}' && !feof(file)) {
-                c = fgetc(file);
+            while (c != '}' && !feof (file)) {
+                c = fgetc (file);
 
-                if (c == ',') {
-                    nbCommas++;
-                }
+                if (c == ',')
+                    nb_commas++;
             }
-
-            nbObjects = nbCommas + 1;
+            nb_objects = nb_commas + 1;
         }
     }
 
-    fileCloseFile(file);
+    free ((char*) file_name);
+    file = eng_file_close_file (file);
 
-    return nbObjects;
+    return nb_objects;
 }
 
 /*
  * Allocates memory for the object dynamic array in a chunk, size depends
- * on the value of nbObjects.
+ * on the value of nb_objects.
  */
 static void
-allocateObjects(Chunk *chunk, int nbObjects)
+allocate_objects (EngChunk *chunk, int nb_objects)
 {
-    if (chunk->nbObjects == 0 && nbObjects == 0) {
+    if (chunk->nb_objects == 0 && nb_objects == 0) {
 
     }
-    else if (chunk->nbObjects != 0 && nbObjects == 0) {
-        free(chunk->object);
-    }
-    else if (chunk->nbObjects == 0 && nbObjects != 0) {
-        chunk->object =
-        (Object*) malloc(nbObjects * sizeof(Object));
-    }
+    else if (chunk->nb_objects != 0 && nb_objects == 0)
+        free (chunk->object);
+    else if (chunk->nb_objects == 0 && nb_objects != 0)
+        chunk->object = (EngObject*) malloc (nb_objects * sizeof(EngObject));
     else {
         chunk->object =
-        (Object*) realloc(chunk->object, nbObjects * sizeof(Object));
+        (EngObject*) realloc (chunk->object, nb_objects * sizeof(EngObject));
     }
 
-    chunk->nbObjects = nbObjects;
+    chunk->nb_objects = nb_objects;
 }
 
 /*
- * Stores object data coming from the file corresponding to chunkX and
- * chunkY into chunk[chunkIndex].
+ * Stores object data coming from the file corresponding to chunk_x and
+ * chunk_y into chunk.
  */
 void
-objectLoadObjects(Chunk *chunk)
+eng_object_load_objects (EngChunk *chunk)
 {
-    int cursorIndex = 0;
-    int nbObjects =
-    objectGetNbObjects(chunk->chunkX, chunk->chunkY);
+    int cursor_index = 0;
+    int nb_objects =
+    eng_object_get_nb_objects (chunk->chunk_x, chunk->chunk_y);
+    SDL_Rect null_rect = {0, 0, 0, 0};
 
-    const char* fileName =
-    chunkGetFileName(chunk->chunkX, chunk->chunkY);
+    const char *file_name =
+    eng_chunk_get_file_name (chunk->chunk_x, chunk->chunk_y);
 
     /* Seek the location of object data. */
-    cursorIndex = fileGetIndexAfterString(fileName, "objects{");
-    FILE *file = fopen(fileName, "r");
+    cursor_index = eng_file_get_index_after_string (file_name, "objects{");
+    FILE *file = fopen (file_name, "r");
 
-    if (file != NULL && cursorIndex >= 0) {
-
+    if (file != NULL && cursor_index >= 0) {
         /* Position the file cursor to the end of "objects{". */
-        fseek(file, cursorIndex, SEEK_SET);
+        fseek (file, cursor_index, SEEK_SET);
 
-        allocateObjects(chunk, nbObjects);
+        allocate_objects (chunk, nb_objects);
 
         /*
         * Scan all the objects in the file and assign them their respective
         * values.
         */
-        for (int i = 0; i < nbObjects; i++) {
-            fscanf(file, "%d %d %d,", &chunk->object[i].id,
-                   &chunk->object[i].x,
-                   &chunk->object[i].y);
+        for (int i = 0; i < nb_objects; i++) {
+            fscanf (file, "%d %d %d,", &chunk->object[i].id,
+                    &chunk->object[i].x,
+                    &chunk->object[i].y);
+
+            /* Initialize every element of object. */
+            chunk->object[i].center_y = 0;
+            chunk->object[i].frame = 0;
+            chunk->object[i].nb_frames = 0;
+            chunk->object[i].render_mode = 0;
+            chunk->object[i].texture_index = 0;
+            chunk->object[i].dst = null_rect;
+            chunk->object[i].src = null_rect;
         }
+
+        file = eng_file_close_file (file);
     }
 
-    file = fileCloseFile(file);
+    free ((char*) file_name);
 }
 
 /*
- * This function needs to be called at the end of the program to cleanly
- * exit, frees the memory taken by the dynamic array "object".
- *
- * Probably should only be called at the end of the program.
+ * Frees memory allocated to objects in a chunk.
  */
 void
-objectDeallocate(Chunk *chunk)
+eng_object_deallocate (EngChunk *chunk)
 {
-    if (chunk->nbObjects != 0) {
+    if (chunk->nb_objects != 0)
         free(chunk->object);
-    }
 
-    chunk->nbObjects = 0;
+    chunk->nb_objects = 0;
 }

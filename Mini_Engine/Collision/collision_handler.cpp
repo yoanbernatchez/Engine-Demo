@@ -1,131 +1,137 @@
-#include <SDL.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
 #include <stdbool.h>
+#include "../Characters/character.h"
 #include "collision_handler.h"
 
-static int getChunkIndex(Chunk chunk[], int chunkX, int chunkY);
-static bool checkCollisionOnTile(Chunk chunk[], Point2d point,
-                                 int offsetX, int offsetY);
+/*---------------------------------------------------------------------------*/
+/* Local function prototypes                                                 */
+/*---------------------------------------------------------------------------*/
 
 /**
+ * @brief Checks if a specified point ends up on a tile with the collision tag.
  *
+ * @param chunk:    Array of chunks in which to check collision.
+ * @param point:    A hit box point.
+ * @param offset_X: Offset to apply to the x value of the hit box point.
+ * @param offset_Y: Offset to apply to the y value of the hit box point.
  *
- * @param event: Structure containing events
- *
- * @return A collision structure with data relative to the collision of
- *         projected hit box coordinates.
+ * @return False if the point is in a tile without collision, true if it is
+ *         in a tile with collision.
  */
-Collision
-getCollisionInfo(Chunk chunk[], Character character,
-                          EngineEvent event)
+static bool check_collision_on_tile (EngChunk chunk[], EngPoint2d point,
+                                     int offset_x, int offset_y);
+/**
+ * @brief Scans an array of chunks and returns the index of the chunk with
+ *        the requested x and y chunk values.
+ *
+ * @param chunk:   Array of chunks to scan.
+ * @param chunk_x: Value of the chunk in x to find in the array of chunks.
+ * @param chunk_y: Value of the chunk in y to find in the array of chunks.
+ *
+ * @return The index of the chunk with the corresponding chunk_x and chunk_y
+ *         values from the array of chunks sent in parameters
+ *         (-1 if not found).
+ */
+static int get_chunk_index (EngChunk chunk[], int chunk_x, int chunk_y);
+
+/*---------------------------------------------------------------------------*/
+/* Collision handling function implementations                               */
+/*---------------------------------------------------------------------------*/
+
+/* Returns collision data for a character in the form of booleans. */
+EngCollision
+eng_get_char_collision (EngChunk chunk[], EngCharacter character,
+                        EngEvent event)
 {
-    Collision collision = {false};
+    EngCollision collision = {false, false, false, false};
 
     /* Points of the character's hit box. */
-    Point2d topLeft = {character.hitbox.x, character.hitbox.y};
-    Point2d topRight = {character.hitbox.x + character.hitbox.w,
-                        character.hitbox.y};
-    Point2d bottomLeft = {character.hitbox.x,
-                          character.hitbox.y + character.hitbox.h};
-    Point2d bottomRight = {character.hitbox.x + character.hitbox.w,
-                           character.hitbox.y + character.hitbox.h};
+    EngPoint2d top_left = {character.hitbox.x, character.hitbox.y};
+    EngPoint2d top_right = {character.hitbox.x + character.hitbox.w,
+                            character.hitbox.y};
+    EngPoint2d bottom_left = {character.hitbox.x, character.hitbox.y +
+                              character.hitbox.h};
+    EngPoint2d bottom_right = {character.hitbox.x + character.hitbox.w,
+                               character.hitbox.y + character.hitbox.h};
 
-        /* Check for collision when going left*/
-        if (event.leftPressed) {
-            collision.left = checkCollisionOnTile(chunk, topLeft, -character.speed, 0);
-            if (!collision.left) {
-                collision.left = checkCollisionOnTile(chunk, bottomLeft, -character.speed, 0);
-            }
+        /* Check for collision when going left. */
+        if (event.left_pressed) {
+            collision.left = check_collision_on_tile (chunk, top_left,
+                                                      -character.speed, 0);
+            if (!collision.left)
+                collision.left = check_collision_on_tile (chunk, bottom_left,
+                                                          -character.speed, 0);
         }
-        if (event.rightPressed) {
-            collision.right = checkCollisionOnTile(chunk, topRight, character.speed, 0);
-            if (!collision.right) {
-                collision.right = checkCollisionOnTile(chunk, bottomRight, character.speed, 0);
-            }
+        /* Check for collision when going right. */
+        if (event.right_pressed) {
+            collision.right = check_collision_on_tile (chunk, top_right,
+                                                       character.speed, 0);
+            if (!collision.right)
+                collision.right = check_collision_on_tile (chunk, bottom_right,
+                                                           character.speed, 0);
         }
-        if (event.upPressed) {
-            collision.up = checkCollisionOnTile(chunk, topLeft, 0, -character.speed);
-            if (!collision.up) {
-                collision.up = checkCollisionOnTile(chunk, topRight, 0, -character.speed);
-            }
+        /* Check for collision when going up. */
+        if (event.up_pressed) {
+            collision.up = check_collision_on_tile (chunk, top_left, 0,
+                                                    -character.speed);
+            if (!collision.up)
+                collision.up = check_collision_on_tile (chunk, top_right, 0,
+                                                        -character.speed);
         }
-        if (event.downPressed) {
-            collision.down = checkCollisionOnTile(chunk, bottomLeft, 0, character.speed);
-            if (!collision.down) {
-                collision.down = checkCollisionOnTile(chunk, bottomRight, 0, character.speed);
-            }
+        /* Check for collision when going down. */
+        if (event.down_pressed) {
+            collision.down = check_collision_on_tile (chunk, bottom_left, 0,
+                                                      character.speed);
+            if (!collision.down)
+                collision.down = check_collision_on_tile (chunk, bottom_right,
+                                                          0, character.speed);
         }
 
     return collision;
 }
 
-/**
- * @brief Checks if a specified point ends up on a tile with the collision tag.
- *
- * @param chunk:   Array of chunks in which to check collision.
- * @param point:   A hit box point.
- * @param offsetX: Offset to apply to the x value of the hit box point.
- * @param offsetY: Offset to apply to the y value of the hit box point.
- *
- * @return False if the point is in a tile without collision, true if it is
- *         in a tile with collision.
- */
 /* Checks if a specified point ends up on a tile with the collision tag. */
 static bool
-checkCollisionOnTile(Chunk chunk[], Point2d point, int offsetX, int offsetY)
+check_collision_on_tile (EngChunk chunk[], EngPoint2d point,
+                         int offset_x, int offset_y)
 {
     bool collision = false;
-    int chunkIndex = 0;
-    Point2d tile = {-1, -1};
+    int chunk_index = 0;
+    EngPoint2d tile = {-1, -1};
 
     /*
      * Find the tile that the selected point from the character's hit box
      * would end up on if it was affected by an offset.
      */
-    tile.x = characterGetTileX(point.x + offsetX);
-    tile.y = characterGetTileY(point.y + offsetY);
+    tile.x = eng_char_get_tile_x (point.x + offset_x);
+    tile.y = eng_char_get_tile_y (point.y + offset_y);
 
     /*
      * Same thing here but this time we are finding the chunk that the point
      * ends up in depending on the offset.
      */
-    chunkIndex = getChunkIndex(chunk, characterGetChunkX(point.x + offsetX),
-                               characterGetChunkY(point.y + offsetY));
+    chunk_index = get_chunk_index (chunk,
+                                   eng_char_get_chunk_x (point.x + offset_x),
+                                   eng_char_get_chunk_y (point.y + offset_y));
 
-    if (chunk[chunkIndex].tile[tile.x][tile.y].collision) {
+    if (chunk[chunk_index].tile[tile.x][tile.y].has_collision)
         collision = true;
-    }
 
     return collision;
 }
 
-/**
- * @brief Scans an array of chunks and returns the index of the chunk with
- *        the request x and y chunk values.
- *
- * @param chunk:  Array of chunks to scan.
- * @param chunkX: Value of the chunk in x to find in the array of chunks.
- * @param chunkY: Value of the chunk in y to find in the array of chunks.
- *
- * @return The index of the chunk with the corresponding chunkX and chunkY
- *         values from the array of chunks sent in parameters.
- */
 /*
  * Scans an array of chunks and returns the index of the chunk with the
  * requested x and y values.
  */
 static int
-getChunkIndex(Chunk chunk[], int chunkX, int chunkY)
+get_chunk_index (EngChunk chunk[], int chunk_x, int chunk_y)
 {
     int index = -1;
 
-    for (int i = 0; i<NBCHUNKS; i++) {
+    for (int i = 0; i < NBCHUNKS; i++) {
         index = i;
-        if (chunk[i].chunkX == chunkX && chunk[i].chunkY == chunkY) {
+        if (chunk[i].chunk_x == chunk_x && chunk[i].chunk_y == chunk_y)
             break;
-        }
     }
 
     return index;

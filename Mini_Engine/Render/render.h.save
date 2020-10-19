@@ -1,6 +1,7 @@
 #ifndef RENDER_H_INCLUDED
 #define RENDER_H_INCLUDED
 
+#include <SDL.h>
 #include "../Engine/globals.h"
 
 /**
@@ -16,11 +17,13 @@
  * @param tileText:     Array of textures used to display tiles.
  * @param objectText:   Array of textures used to display objects.
  */
-void renderTiles(SDL_Renderer *renderer, Chunk chunk[], Character player,
-                 SDL_Texture *tileText[]);
+void eng_render_tiles (SDL_Renderer *renderer, EngChunk chunk[],
+                      EngCharacter player, SDL_Texture *tileText[],
+                      int nbTextures);
 
 void
-renderHybridObjects(SDL_Renderer *renderer, SDL_Texture *charText[],
-                    SDL_Texture *objText[], Character character[], int nbCharacters, Chunk chunk[]);
+eng_render_objects (SDL_Renderer *renderer, SDL_Texture *charText[],
+                    SDL_Texture *objText[], EngCharacter character[],
+                    int nbCharacters, EngChunk chunk[]);
 
-#endif // RENDER_H_INCLUDED
+#endif /* RENDER_H_INCLUDED */

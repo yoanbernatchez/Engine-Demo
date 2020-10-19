@@ -5,98 +5,98 @@
 #include "../Chunks/pathfinding.h"
 #include "test_pathfinding.h"
 
-static void testPathfindGetPath(void);
+static void test_pathfind_get_path (void);
 
 void
-testPathfinding(void)
+test_pathfinding (void)
 {
-    testPathfindGetPath();
+    printf("\nTesting pathfinding functions...\n\n");
+    test_pathfind_get_path();
 }
 
 static void
-testPathfindGetPath(void)
+test_pathfind_get_path(void)
 {
-    Path path;
-    int nbChunks = 4;
-    int tilesX = 64;
-    int tilesY = 64;
-    Chunk chunk[nbChunks];
+    EngPath *path;
+    int nb_chunks = 4;
+    int tiles_x = 64;
+    int tiles_y = 64;
+    EngChunk chunk[nb_chunks];
 
-    for (int i = 0; i < nbChunks; i++) {
-        chunk[i] = chunkCreateChunk();
-    }
+    for (int i = 0; i < nb_chunks; i++)
+        chunk[i] = eng_chunk_create_chunk ();
 
-    chunk[0].chunkX = 0;
-    chunk[0].chunkY = 0;
-    chunk[1].chunkX = -1;
-    chunk[1].chunkY = 0;
-    chunk[2].chunkX = 0;
-    chunk[2].chunkY = -1;
-    chunk[3].chunkX = -1;
-    chunk[3].chunkY = -1;
-
-    chunk[0].tile[1][0].id = 1;
+    chunk[0].chunk_x = 0;
+    chunk[0].chunk_y = 0;
+    chunk[1].chunk_x = -1;
+    chunk[1].chunk_y = 0;
+    chunk[2].chunk_x = 0;
+    chunk[2].chunk_y = -1;
+    chunk[3].chunk_x = -1;
+    chunk[3].chunk_y = -1;
 
     /* Test when the starting tile is a tile with collision. */
-    tileSetCollision(chunk, 0, true);
-    path = pathfindGetPath(chunk, tilesX, tilesY, tilesX + 1, tilesY);
-    assert(path.nbSteps == -1);
-    assert(!path.doesPathExist);
-    pathfindDestroyPath(&path);
+    chunk[0].tile[0][0].id = 0;
+    chunk[0].tile[1][0].id = 1;
+    eng_tile_set_collision (chunk, 0, true);
+    path = eng_pathfind_get_path (chunk, tiles_x, tiles_y, tiles_x + 1,
+                                  tiles_y);
+
+    assert (path == NULL);
+
 
     /* Test when ending tile is a tile with collision. */
-    path = pathfindGetPath(chunk, tilesX + 1, tilesY, tilesX, tilesY);
-    assert(path.nbSteps == -1);
-    assert(!path.doesPathExist);
-    pathfindDestroyPath(&path);
+    path = eng_pathfind_get_path (chunk, tiles_x + 1, tiles_y, tiles_x,
+                                  tiles_y);
+    assert (path == NULL);
 
     /* Test when destination goes out of scope negatively. */
-    tileSetCollision(chunk, 0, false);
-    path = pathfindGetPath(chunk, tilesX, tilesY, -100, -200);
-    assert(path.nbSteps == -1);
-    assert(!path.doesPathExist);
-    pathfindDestroyPath(&path);
+    eng_tile_set_collision (chunk, 0, false);
+    path = eng_pathfind_get_path (chunk, tiles_x, tiles_y, -100, -200);
+    assert (path == NULL);
 
     /* Test when destination goes out of scope positively. */
-    tileSetCollision(chunk, 0, false);
-    path = pathfindGetPath(chunk, tilesX, tilesY,
-                           tilesX * (NBCHUNKS + 1), tilesY * (NBCHUNKS + 1));
-    assert(path.nbSteps == -1);
-    assert(!path.doesPathExist);
-    pathfindDestroyPath(&path);
+    eng_tile_set_collision (chunk, 0, false);
+    path = eng_pathfind_get_path (chunk, tiles_x, tiles_y,
+                                  tiles_x * (NBCHUNKS + 1),
+                                  tiles_y * (NBCHUNKS + 1));
+    assert (path == NULL);
 
     /* Test destination unreachable. */
-    tileSetCollision(chunk, 0, true);
-    chunk[0].tile[0][0].collision = false;
-    chunk[1].tile[tilesX - 2][0].collision = false;
-    path = pathfindGetPath(chunk, tilesX, tilesY, tilesX - 2, tilesY);
-    assert(path.nbSteps == -1);
-    assert(!path.doesPathExist);
-    pathfindDestroyPath(&path);
+    eng_tile_set_collision(chunk, 0, true);
+    chunk[0].tile[0][0].has_collision = false;
+    chunk[1].tile[tiles_x - 2][0].has_collision = false;
+    path = eng_pathfind_get_path(chunk, tiles_x, tiles_y, tiles_x - 2, tiles_y);
+    assert(path == NULL);
+
 
     /* Test starting point = ending point. */
-    chunk[3].tile[0][0].collision = false;
-    path = pathfindGetPath(chunk, 0, 0, 0, 0);
-    assert(path.nbSteps == 0);
-    assert(path.doesPathExist);
-    pathfindDestroyPath(&path);
+    chunk[0].tile[0][0].has_collision = false;
+    chunk[1].tile[0][0].has_collision = false;
+    chunk[2].tile[0][0].has_collision = false;
+    chunk[3].tile[0][0].has_collision = false;
+    path = eng_pathfind_get_path (chunk, 66, 66, 66, 66);
+    assert (path == NULL);
 
 #if TILESX == 64 && TILESY == 64
     /*
      * Test path is found.
-     * Note: This is hard to test 
+     * Note: This is hard to test if TILESX is different than tilesX or
+     *       TILESY is different than tilesY
      */
-    chunk[0].tile[0][0].collision = false;
-    chunk[1].tile[tilesX - 1][0].collision = false;
-    chunk[1].tile[tilesX - 2][0].collision = false;
-    chunk[1].tile[tilesX - 2][1].collision = false;
-    chunk[1].tile[tilesX - 2][2].collision = false;
-    path = pathfindGetPath(chunk, tilesX, tilesY, tilesX - 2, tilesY + 2);
-    assert(path.nbSteps == 4);
-    assert(path.doesPathExist);
-    pathfindDestroyPath(&path);
+    chunk[0].tile[0][0].has_collision = false;
+    chunk[1].tile[tiles_x - 1][0].has_collision = false;
+    chunk[1].tile[tiles_x - 2][0].has_collision = false;
+    chunk[1].tile[tiles_x - 2][1].has_collision = false;
+    chunk[1].tile[tiles_x - 2][2].has_collision = false;
+    path = eng_pathfind_get_path (chunk, tiles_x, tiles_y, tiles_x - 2,
+                                  tiles_y + 2);
+    assert (path->nb_steps == 4);
+    assert (path->does_path_exist);
+
+    eng_pathfind_destroy_path (&path);
 #endif
-    for (int i = 0; i < nbChunks; i++) {
-        chunkDestroy(&chunk[i]);
-    }
+
+    for (int i = 0; i < nb_chunks; i++)
+        eng_chunk_destroy (&chunk[i]);
 }

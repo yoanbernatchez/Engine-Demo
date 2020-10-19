@@ -1,9 +1,19 @@
 #ifndef COLLISION_HANDLER_H_INCLUDED
 #define COLLISION_HANDLER_H_INCLUDED
 
-#include "../Chunks/chunk.h"
-#include "../Characters/character.h"
+#include "../Engine/globals.h"
 
-Collision getCollisionInfo(Chunk chunk[], Character character, EngineEvent event);
+/**
+ * @brief Returns a collision data for a character in the form of booleans.
+ *
+ * @param chunk:     Array of chunks containing a collision map.
+ * @param character: Character to test collision for.
+ * @param event:     Structure containing events.
+ *
+ * @return A collision structure with boolean data relative to the collision of
+ *         projected hit box coordinates.
+ */
+EngCollision eng_get_char_collision (EngChunk chunk[], EngCharacter character,
+                                     EngEvent event);
 
-#endif // COLLISION_HANDLER_H_INCLUDED
+#endif /* COLLISION_HANDLER_H_INCLUDED */

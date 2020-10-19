@@ -8,6 +8,7 @@
  * function.
  */
 
+#include <stdlib.h>
 #include <string.h>
 #include "file_utilities.h"
 
@@ -16,13 +17,13 @@
  * the cursor after the word.
  */
 int
-fileGetIndexAfterString(const char *fileName, const char *word)
+eng_file_get_index_after_string (const char *file_name, const char *word)
 {
     char c = '+';
     int index = 0;
-    int wordLength = strlen(word);
+    int word_length = strlen (word);
 
-    FILE *file = fopen(fileName, "r");
+    FILE *file = fopen (file_name, "r");
 
     if (file != NULL) {
         /*
@@ -33,28 +34,28 @@ fileGetIndexAfterString(const char *fileName, const char *word)
          * letters, if it does not correspond, we go back to searching
          * for the first letter in word.
          */
-        for (int i = 0; i < wordLength && !feof(file); /* Empty. */ ) {
-
-            c = fgetc(file);
-
+        for (int i = 0; i < word_length && !feof (file); /* Empty. */ ) {
+            c = fgetc (file);
             (word[i] == c) ? i++ : i = 0;
         }
 
-        index = ftell(file);
+        index = ftell (file);
 
         /* Return -1 if the word wasn't found. */
-        if (feof(file)) index = -1;
+        if (feof (file))
+            index = -1;
 
-        file = fileCloseFile(file);
+        file = eng_file_close_file (file);
     }
     else {
         index = -1;
-        printf("Error: Could not open file %s\n", fileName);
+        printf("Error: Could not open file %s\n", file_name);
     }
 
-    if (index < 0) {
-        printf("Error: Could not locate \"%s\" in %s\n", word, fileName);
-    }
+    if (index < 0)
+        printf("Error: Could not locate \"%s\" in %s\n", word, file_name);
+
+    free ((char*) word);
 
     return index;
 }
@@ -64,48 +65,49 @@ fileGetIndexAfterString(const char *fileName, const char *word)
  * inserts text where the data was removed.
  */
 bool
-fileReplaceWithString(const char *fileName, const char *text,
-                           int startIndex, int endIndex)
+eng_file_replace_with_string (const char *file_name, const char *text,
+                              int start_index, int end_index)
 {
     bool result = false;
-    bool textIsInserted = false;
-    const char *tempFileName = "temp.txt";
+    bool is_text_inserted = false;
+    const char *temp_file_name = "temp.txt";
     char c = '!';
 
     /* Open files. */
-    FILE *file = fopen(fileName, "r");
-    FILE *tempFile = fopen(tempFileName, "w");
+    FILE *file = fopen (file_name, "r");
+    FILE *temp_file = fopen (temp_file_name, "w");
 
     /* Cut and replace the file characters. */
-    if (file != NULL && tempFile != NULL) {
-        while (!feof(file)) {
-            c = fgetc(file);
+    if (file != NULL && temp_file != NULL) {
+        while (!feof (file)) {
+            c = fgetc (file);
 
-            if (ftell(file) <= startIndex && !feof(file)) {
-                fputc(c, tempFile);
-            }
-            else if (!textIsInserted) {
-                fputs(text, tempFile);
-                textIsInserted = true;
+            if (ftell (file) <= start_index && !feof (file))
+                fputc (c, temp_file);
+            else if (!is_text_inserted) {
+                fputs (text, temp_file);
+                is_text_inserted = true;
             }
 
-            if (ftell(file) > endIndex && !feof(file)) {
-                fputc(c, tempFile);
-            }
+            if (ftell (file) > end_index && !feof (file))
+                fputc (c, temp_file);
         }
 
         result = true;
     }
 
     /* Close files if they were opened. */
-    file = fileCloseFile(file);
-    tempFile = fileCloseFile(tempFile);
+    file = eng_file_close_file (file);
+    temp_file = eng_file_close_file (temp_file);
 
     /* Temp file becomes the new file. */
-    if (!file && !tempFile) {
-        remove(fileName);
-        rename(tempFileName, fileName);
+    if (!file && !temp_file) {
+        remove (file_name);
+        rename (temp_file_name, file_name);
     }
+
+    free ((char*) temp_file_name);
+    free ((char*) text);
 
     return result;
 }
@@ -116,10 +118,10 @@ fileReplaceWithString(const char *fileName, const char *text,
  * created.
  */
 FILE *
-fileCloseFile(FILE *file)
+eng_file_close_file (FILE *file)
 {
     if (file != NULL) {
-        fclose(file);
+        fclose (file);
         file = NULL;
     }
 

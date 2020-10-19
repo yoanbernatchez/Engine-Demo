@@ -1,53 +1,89 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "../Engine/globals.h"
+#include <string.h>
 #include "pathfinding.h"
 
 /* Local structures. */
-typedef struct
-{
+typedef struct _EngNode {
     int x;
     int y;
     int d;
-} Triplet;
+} EngNode;
+/**< Node structure used for pathfinding. */
 
 /*---------------------------------------------------------------------------*/
 /* Local function prototypes                                                 */
 /*---------------------------------------------------------------------------*/
 
 /**
+ * @brief Adds a new node to the dynamic array new_tiles if the specified tile
+ *        equals zero.
+ *
+ * @param old_tiles:      Array of old tile nodes.
+ * @param new_tiles:      Pointer to an array of new tile nodes.
+ * @param tile:           Collision map.
+ * @param old_tile_index: The index of the old tile to check for adjacent zero
+ *                        tiles.
+ * @param nb_new_tiles:   Number of new tile nodes.
+ * @param offset_x:       -1 for left adjacent tile, 1 for right adjacent tile.
+ * @param offset_y:       -1 for up adjacent tile, 1 for down adjacent tile.
+ *
+ * @return 0 if there was an error in memory assignment, 1 if successful.
+ */
+static int add_new_node (EngNode *old_tiles, EngNode **new_tiles,
+                          int tile[][TILESY*NBCHUNKS/2], int old_tile_index,
+                          int *nb_new_tiles, int offset_x, int offset_y);
+
+/**
+ * @brief Adds a step and a direction to a path.
+ *
+ * @param tile:           Collision map.
+ * @param path:           The path we add a step and direction to.
+ * @param dir_index:      The index of direction in which we put a value.
+ * @param value:          The wave value of the tile currently observed.
+ * @param starting_point: The tile to observe (+ the offset).
+ * @param offset_x:       Offset in x to the tile to observe.
+ * @param offset_y:       Offset in y to the tile to observe.
+ */
+static void add_step (int tile[][TILESY*NBCHUNKS/2], EngPath *path,
+                      int dir_index, int *value, EngPoint2d starting_point,
+                      int offset_x, int offset_y);
+
+/**
  * @brief Returns true if starting and ending points are within the index range
  *        of an array of size TILESX * NBCHUNKS / 2 by TILESY * NBCHUNKS / 2.
  *
- * @param startingPoint: Point to test (where the path starts).
- * @param endingPoint:   Point to test (where the path ends).
+ * @param starting_point: Point to test (where the path starts).
+ * @param ending_point:   Point to test (where the path ends).
  *
  * @return True if it respects the limits of an array of size
- *         TILESX * NBCHUNKS / 2 by TILESY * NBCHUNKS / 2. False otherwise.
+ *         TILESX * NBCHUNKS / 2 by TILESY * NBCHUNKS / 2, false otherwise.
  */
-static bool respectsArrayLimits(Point2d startingPoint, Point2d endingPoint);
+static bool respects_array_limits (EngPoint2d starting_point,
+                                   EngPoint2d ending_point);
 
 /**
  * @brief Creates a path by assigning values to the direction int array and
  *        returning it.
  *
- * @param startingPoint: The tile we start creating a path from.
- * @param tile:          Array of tiles with wave values.
+ * @param starting_point: The tile we start creating a path from.
+ * @param tile:           Array of tiles with wave values.
  *
  * @return A path structure with directions and information regarding the
- *         existence of the path.
+ *         existence of the path (NULL if path does not exist).
  */
-static Path createPath(Point2d startingPoint, int tile[][TILESY*NBCHUNKS/2]);
+static EngPath * create_path (EngPoint2d starting_point,
+                              int tile[][TILESY*NBCHUNKS/2]);
 
 /**
- * @brief Finds and removes all duplicate numbers from an array of tile data.
+ * @brief Finds and removes all duplicate nodes.
  *
- * @param newTiles:   An array of tile data to be processed.
- * @param nbNewTiles: The size of the array.
+ * @param new_tiles:    An array of nodes to be processed.
+ * @param nb_new_tiles: The size of the array.
  *
- * @return The new size of the array of tile data.
+ * @return The new size of the array of nodes.
  */
-static int removeDuplicates(Triplet* newTiles, int nbNewTiles);
+static int remove_duplicates (EngNode *new_tiles, int nb_new_tiles);
 
 /**
  * @brief Gives the array of tiles a value for each individual tile,
@@ -56,242 +92,375 @@ static int removeDuplicates(Triplet* newTiles, int nbNewTiles);
  * @param chunk: Array of chunk data.
  * @param tile:  Array of tile data.
  */
-static void getMapInfo(Chunk chunk[], int tile[][TILESY*NBCHUNKS/2]);
+static void get_collision_map (EngChunk chunk[],
+                               int tile[][TILESY*NBCHUNKS/2]);
 
 /**
- * @brief Returns the order of the chunks in a specific order. Top-left: 0,
- *        top-right: 1, bottom-left: 2, bottom-right: 3.
+ * @brief Sets a specific order to the chunks and saves the order in an array.
+ *        Top-left: 0, top-right: 1, bottom-left: 2, bottom-right: 3.
  *
  * @param chunk: Array of chunk data.
  * @param order: Array of int that describes the order in which chunks need to
  *               be processed.
  */
-static void chunkGetOrderOfChunks(Chunk chunk[], int order[]);
+static void chunk_get_order_of_chunks (EngChunk chunk[], int order[]);
 
 /*---------------------------------------------------------------------------*/
-/* Pathfinding functions implementation                                      */
+/* Path finding functions implementation                                     */
 /*---------------------------------------------------------------------------*/
 
 /*
  * Returns a path from a starting point to an ending point that takes
- * in account collision (wave propagation method).
+ * in account tile collision (wave propagation method).
  *
  * The wave propagation method may be slow when dealing with large amount of
- * tiles. A solution would be to also offer Dijkstra's algorithm, which is
- * more efficient.
+ * tiles. A solution would be to also offer Dijkstra's algorithm or A*, which
+ * are more efficient.
  *
  * A path will always be returned, but may not exist. When a path does not
- * exist, it's doesPathExist member will be false and its nbSteps member will
- * be set to -1 (to distinguish between a path that has 0 steps).
+ * exist, the pointer returned is NULL.
  *
- * pathDestroy() must be called after usage of path.
+ * eng_pathfind_detroy() must be called after usage of path.
+ *
+ * NOTE: This algorithm has been written with memory allocation checks, which
+ *       makes the function look a little bit heavy, however, it allows the
+ *       program to keep running even if the OS did not lend memory. If the OS
+ *       did not allocate memory and the algorithm kept going without checks,
+ *       it could have caused eventual crashes.
  *
  * TODO: This is a very long function and there are probably ways to decompose
- *       it into functions and make it more readable.
+ *       it even more.
  */
-Path
-pathfindGetPath(Chunk chunk[], int startingTileX, int startingTileY,
-                   int endingTileX, int endingTileY)
+EngPath *
+eng_pathfind_get_path (EngChunk chunk[],
+                       int starting_tile_x, int starting_tile_y,
+                       int ending_tile_x, int ending_tile_y)
 {
-    Path path;
-    Triplet *oldTiles;
-    Triplet *newTiles;
-
-    int nbOldTiles = 1;
-    int nbNewTiles = 0;
-
-    Point2d startingPoint = {startingTileX, startingTileY};
-    Point2d endingPoint = {endingTileX, endingTileY};
-
+    EngPath *path = NULL;
+    EngNode *old_tiles = NULL;
+    EngNode *new_tiles = NULL;
     int tile[TILESX * NBCHUNKS / 2][TILESY * NBCHUNKS / 2];
-    getMapInfo(chunk, tile);
+    int wave_value = 1;
+    bool is_mem_invalid = false;
 
-    /* Check if the starting tile and ending have collision set on them. */
-    if (respectsArrayLimits(startingPoint, endingPoint) &&
-        tile[startingPoint.x][startingPoint.y] != -1 &&
-        tile[endingPoint.x][endingPoint.y] != -1) {
+    int nb_old_tiles = 1;
+    int nb_new_tiles = 0;
 
-        /* Memory allocation for our tile nodes. */
-        oldTiles = (Triplet*) malloc(nbOldTiles * sizeof(Triplet));
-        newTiles = (Triplet*) malloc(0);
+    EngPoint2d starting_point = {starting_tile_x, starting_tile_y};
+    EngPoint2d ending_point = {ending_tile_x, ending_tile_y};
 
-        oldTiles[0].x = endingPoint.x;
-        oldTiles[0].y = endingPoint.y;
-        oldTiles[0].d = 0;
+    /*
+     * Check if starting point and ending points are within array limits,
+     * otherwise we return a NULL path.
+     */
+    if (respects_array_limits (starting_point, ending_point)) {
 
-        int d = 1;
+        get_collision_map (chunk, tile);
 
-        tile[endingPoint.x][endingPoint.y] = 1;
+        /*
+         * Make sure that the starting tile and ending tile do not have
+         * collision set on them (if one of them does, we return a NULL path).
+         */
+        if (tile[starting_point.x][starting_point.y] != -1 &&
+            tile[ending_point.x][ending_point.y] != -1) {
 
-        do {
+            /* Initialization of our first old tile node. */
+            old_tiles = (EngNode*) malloc (nb_old_tiles * sizeof(EngNode));
+
+            /* Check if memory was allocated. */
+            if (old_tiles == NULL) {
+                is_mem_invalid = true;
+                goto MEM_ERROR;
+            }
+
+            old_tiles[0].x = ending_point.x;
+            old_tiles[0].y = ending_point.y;
+            old_tiles[0].d = 0;
+
+            tile[ending_point.x][ending_point.y] = wave_value;
+
             /*
-             * For every old tile, check if adjacent tiles have a value of 0
-             * if so, add them to the new tile array.
-             * TODO: Find a more graceful way to code this.
+             * In this loop, we give a wave propagation value to all the tiles
+             * in the tile array.
              */
-            for (int i = 0; i < nbOldTiles; i++) {
-                oldTiles[i].d = d;
-                tile[oldTiles[i].x][oldTiles[i].y] = d;
+            while (nb_old_tiles != 0) {
+                /*
+                 * For every old tile, check if adjacent tiles have a value of
+                 * 0 if so, add them to the new_tiles node array. For every
+                 * adjacent tile, we also do a memory allocation check.
+                 */
+                for (int i = 0; i < nb_old_tiles; i++) {
+                    tile[old_tiles[i].x][old_tiles[i].y] = wave_value;
 
-                if (oldTiles[i].x -1 >= 0 && oldTiles[i].x -1 < TILESX*2 &&
-                    oldTiles[i].y >= 0 && oldTiles[i].y < TILESY*2 &&
-                    tile[oldTiles[i].x - 1][oldTiles[i].y] == 0) {
-                    nbNewTiles++;
-                    newTiles =
-                    (Triplet*) realloc(newTiles,(nbNewTiles)*sizeof(Triplet));
-                    newTiles[nbNewTiles-1].x = oldTiles[i].x - 1;
-                    newTiles[nbNewTiles-1].y = oldTiles[i].y;
+                    /* Check for left adjacent tile. */
+                    if (add_new_node (old_tiles, &new_tiles, tile, i,
+                                      &nb_new_tiles, -1, 0) == 0) {
+                        is_mem_invalid = true;
+                        goto MEM_ERROR;
+                    }
 
-                }
-                if (oldTiles[i].x+1 >= 0 && oldTiles[i].x+1 < TILESX*2 &&
-                    oldTiles[i].y >= 0 && oldTiles[i].y < TILESY*2 &&
-                    tile[oldTiles[i].x+1][oldTiles[i].y] == 0) {
-                    nbNewTiles++;
-                    newTiles =
-                    (Triplet*) realloc(newTiles, (nbNewTiles)*sizeof(Triplet));
-                    newTiles[nbNewTiles-1].x = oldTiles[i].x + 1;
-                    newTiles[nbNewTiles-1].y = oldTiles[i].y;
+                    /* Check for right adjacent tile. */
+                    if (add_new_node (old_tiles, &new_tiles, tile, i,
+                                      &nb_new_tiles, 1, 0) == 0) {
+                        is_mem_invalid = true;
+                        goto MEM_ERROR;
+                    }
 
-                }
-                if (oldTiles[i].x >= 0 && oldTiles[i].x < TILESX*2 &&
-                    oldTiles[i].y -1 >= 0 && oldTiles[i].y -1 < TILESY*2 &&
-                    tile[oldTiles[i].x][oldTiles[i].y-1] == 0) {
-                    nbNewTiles++;
-                    newTiles =
-                    (Triplet*) realloc(newTiles, (nbNewTiles)*sizeof(Triplet));
-                    newTiles[nbNewTiles-1].x = oldTiles[i].x;
-                    newTiles[nbNewTiles-1].y = oldTiles[i].y - 1;
+                    /* Check for up adjacent tile. */
+                    if (add_new_node (old_tiles, &new_tiles, tile, i,
+                                      &nb_new_tiles, 0, -1) == 0) {
+                        is_mem_invalid = true;
+                        goto MEM_ERROR;
+                    }
 
+                    /* Check for down adjacent tile. */
+                    if (add_new_node (old_tiles, &new_tiles, tile, i,
+                                      &nb_new_tiles, 0, 1) == 0) {
+                        is_mem_invalid = true;
+                        goto MEM_ERROR;
+                    }
                 }
-                if (oldTiles[i].x >= 0 && oldTiles[i].x < TILESX*2 &&
-                    oldTiles[i].y +1 >= 0 && oldTiles[i].y +1 < TILESY*2 &&
-                    tile[oldTiles[i].x][oldTiles[i].y+1] == 0) {
-                    nbNewTiles++;
-                    newTiles =
-                    (Triplet*) realloc(newTiles, (nbNewTiles)*sizeof(Triplet));
-                    newTiles[nbNewTiles-1].x = oldTiles[i].x;
-                    newTiles[nbNewTiles-1].y = oldTiles[i].y + 1;
+
+                nb_new_tiles = remove_duplicates (new_tiles, nb_new_tiles);
+
+                /* Transfer data from new_tiles nodes to old_tiles nodes. */
+                if (old_tiles != NULL) {
+                    free (old_tiles);
+                    old_tiles = NULL;
                 }
+
+                nb_old_tiles = nb_new_tiles;
+
+                if (nb_old_tiles != 0) {
+                    old_tiles = (EngNode*) malloc (nb_old_tiles *
+                                                   sizeof(EngNode));
+                    if (old_tiles == NULL) {
+                        is_mem_invalid = true;
+                        goto MEM_ERROR;
+                    }
+                }
+
+                for (int j = 0; j < nb_old_tiles; j++) {
+                    old_tiles[j].x = new_tiles[j].x;
+                    old_tiles[j].y = new_tiles[j].y;
+                    old_tiles[j].d = new_tiles[j].d;
+                }
+
+                /* Get rid of our new_tiles nodes. */
+                if (new_tiles != NULL) {
+                    free (new_tiles);
+                    new_tiles = NULL;
+                }
+
+                nb_new_tiles = 0;
+
+                wave_value++;
             }
-
-            nbNewTiles = removeDuplicates(newTiles, nbNewTiles);
-
-            /* Rewrite data from newTiles to oldTiles. */
-            nbOldTiles = nbNewTiles;
-            oldTiles =
-            (Triplet*) realloc(oldTiles, nbOldTiles * sizeof(Triplet));
-
-            for (int j = 0; j < nbOldTiles; j++) {
-                oldTiles[j].x = newTiles[j].x;
-                oldTiles[j].y = newTiles[j].y;
-            }
-
-            /* Erase data in newTiles. */
-            free(newTiles);
-            newTiles = (Triplet*) malloc(0*sizeof(Triplet));
-            nbNewTiles = 0;
-
-            d++;
-
-        } while (nbOldTiles != 0);
-
-        path = createPath(startingPoint, tile);
-
-        /* Free allocated memory. */
-        free(oldTiles);
-        free(newTiles);
+            path = create_path (starting_point, tile);
+        }
     }
-    /* If starting tile or ending tile has collision set to it. */
-    else {
-        path.nbSteps = -1;
-        path.doesPathExist = false;
-    }
+
+     /*
+      * In case of an error in memory allocation, for example, if the OS did
+      * not lend memory as expected, we return a NULL path and an error
+      * message.
+      */
+MEM_ERROR:
+    if (is_mem_invalid)
+        printf ("Unable to allocate memory in %s %d\n.", __FILE__, __LINE__);
+    if (old_tiles != NULL)
+        free (old_tiles);
+    if (new_tiles != NULL)
+        free (new_tiles);
 
     return path;
+}
+
+/*
+ * Adds a new node to the dynamic array new_tiles if the specified tile
+ * equals zero.
+ */
+static int
+add_new_node (EngNode *old_tiles, EngNode **new_tiles,
+              int tile[][TILESY*NBCHUNKS/2],
+              int old_tile_index, int *nb_new_tiles,
+              int offset_x, int offset_y)
+{
+    if (old_tiles[old_tile_index].x + offset_x >= 0 &&
+        old_tiles[old_tile_index].x + offset_x < TILESX * 2 &&
+        old_tiles[old_tile_index].y + offset_y >= 0 &&
+        old_tiles[old_tile_index].y + offset_y < TILESY * 2 &&
+        tile[old_tiles[old_tile_index].x + offset_x]
+            [old_tiles[old_tile_index].y + offset_y] == 0) {
+
+        /* Allocate memory for the new tile node. */
+        if (*nb_new_tiles == 0) {
+            *new_tiles = (EngNode*) malloc (sizeof(EngNode));
+
+            /* Check if memory was allocated. */
+            if (*new_tiles == NULL)
+                return 0;
+        }
+        /* Reallocate memory for the new tile nodes. */
+        else {
+            *new_tiles = (EngNode*) realloc (*new_tiles, (*nb_new_tiles + 1) *
+                                             sizeof(EngNode));
+            /* Check if memory was allocated. */
+            if (*new_tiles == NULL)
+                return 0;
+        }
+
+        *nb_new_tiles += 1;
+        EngNode *new_tiles_ptr = *new_tiles;
+
+        /* Initializing the new tile node. */
+        if (*nb_new_tiles - 1 >= 0) {
+            new_tiles_ptr[*nb_new_tiles - 1].x = old_tiles[old_tile_index].x +
+                                                 offset_x;
+            new_tiles_ptr[*nb_new_tiles - 1].y = old_tiles[old_tile_index].y +
+                                                 offset_y;
+            new_tiles_ptr[*nb_new_tiles - 1].d = 0;
+        }
+        else
+            printf ("Negative index for new_tiles in %s %d.\n" __FILE__,
+                    __LINE__);
+    }
+
+    return 1;
 }
 
 /*
  * Creates a path by assigning values to the direction int array and
  * returning it.
+ *
+ * NOTE: This function also has memory allocation failure checks. If memory
+ *       wasn't allocated by the OS, the function would return a NULL path.
  */
-static Path
-createPath(Point2d startingPoint, int tile[][TILESY*NBCHUNKS/2])
+static EngPath *
+create_path (EngPoint2d starting_point, int tile[][TILESY*NBCHUNKS/2])
 {
-    Path path;
-    int value = tile[startingPoint.x][startingPoint.y];
-    int nbSteps = value - 1;
+    EngPath *path = NULL;
+    int value = tile[starting_point.x][starting_point.y];
+    int nb_steps = value - 1;
+    bool is_mem_invalid = false;
 
-    path.direction = (int*) malloc(nbSteps * sizeof(int));
-    path.nbSteps = nbSteps;
-    path.doesPathExist = false;
-
-    /* TODO: Make this less ugly. */
-    for (int i = 0; i < nbSteps; i++) {
-        if (tile[startingPoint.x + 1][startingPoint.y] < value &&
-            tile[startingPoint.x + 1][startingPoint.y] > -1) {
-            path.direction[i] = RIGHT;
-            value = tile[startingPoint.x + 1][startingPoint.y];
-        }
-        if (tile[startingPoint.x - 1][startingPoint.y] < value &&
-            tile[startingPoint.x - 1][startingPoint.y] > -1) {
-            path.direction[i] = LEFT;
-            value = tile[startingPoint.x - 1][startingPoint.y];
-        }
-        if (tile[startingPoint.x][startingPoint.y - 1] < value &&
-            tile[startingPoint.x][startingPoint.y - 1] > -1) {
-            path.direction[i] = UP;
-            value = tile[startingPoint.x][startingPoint.y - 1];
-        }
-        if (tile[startingPoint.x][startingPoint.y + 1] < value &&
-            tile[startingPoint.x][startingPoint.y + 1] > -1) {
-            path.direction[i] = DOWN;
-            value = tile[startingPoint.x][startingPoint.y + 1];
+    if (nb_steps > 0) {
+        /* Allocate memory for our path. */
+        path = (EngPath*) malloc (sizeof(EngPath));
+        if (path == NULL) {
+            is_mem_invalid = true;
+            goto MEM_ERROR;
         }
 
-        if (path.direction[i] == RIGHT) {
-            startingPoint.x += 1;
+        /* Allocate memory for our directions. */
+        path->direction = (int*) malloc (nb_steps * sizeof(int));
+        if (path->direction == NULL) {
+            is_mem_invalid = true;
+            goto MEM_ERROR;
         }
-        else if (path.direction[i] == LEFT) {
-            startingPoint.x -= 1;
+
+        path->nb_steps = nb_steps;
+
+        for (int i = 0; i < nb_steps; i++) {
+            /* Try to add steps and directions. */
+            add_step (tile, path, i, &value, starting_point, -1, 0);
+            add_step (tile, path, i, &value, starting_point, 1, 0);
+            add_step (tile, path, i, &value, starting_point, 0, -1);
+            add_step (tile, path, i, &value, starting_point, 0, 1);
+
+            /* Adjust starting point. */
+            switch (path->direction[i]) {
+            case ENG_LEFT:
+                starting_point.x -= 1;
+                break;
+            case ENG_RIGHT:
+                starting_point.x += 1;
+                break;
+            case ENG_UP:
+                starting_point.y -= 1;
+                break;
+            case ENG_DOWN:
+                starting_point.y += 1;
+                break;
+            }
         }
-        else if (path.direction[i] == UP) {
-            startingPoint.y -= 1;
-        }
-        else if (path.direction[i] == DOWN) {
-            startingPoint.y += 1;
+
+        /*
+         * If the ending value is 1, then a path was found, otherwise path is
+         * non-existent and is NULL.
+         */
+        if (value == 1)
+            path->does_path_exist = true;
+        else {
+            free (path->direction);
+            free (path);
+            path = NULL;
         }
     }
 
-    if (value == 1) {
-        path.doesPathExist = true;
-    }
+    /* Memory allocation error handling. */
+MEM_ERROR:
+    if (is_mem_invalid)
+        printf ("Unable to allocate memory in %s %d\n.", __FILE__, __LINE__);
+    if (is_mem_invalid && path->direction != NULL)
+        free (path->direction);
+    if (is_mem_invalid && path != NULL)
+        free (path);
 
     return path;
 }
 
-/* Finds and removes all duplicate numbers from an array of tile data. */
-static int
-removeDuplicates(Triplet* newTiles, int nbNewTiles)
+/* Adds a step and direction to a path. */
+static void
+add_step (int tile[][TILESY*NBCHUNKS/2], EngPath *path, int dir_index,
+          int *value, EngPoint2d starting_point, int offset_x, int offset_y)
 {
-    for (int i = 0; i < nbNewTiles; i++) {
-        for (int j = i + 1; j < nbNewTiles; j++) {
+    int index_x = starting_point.x + offset_x;
+    int index_y = starting_point.y + offset_y;
+
+    /* Add a direction step / direction when condition is true. */
+    if (tile[index_x][index_y] < *value &&
+        tile[index_x][index_y] > -1) {
+
+        /* Determine which direction to get. */
+        if (offset_x == -1)
+            path->direction[dir_index] = ENG_LEFT;
+        else if (offset_x == 1)
+            path->direction[dir_index] = ENG_RIGHT;
+
+        if (offset_y == -1)
+            path->direction[dir_index] = ENG_UP;
+        else if (offset_y == 1)
+            path->direction[dir_index] = ENG_DOWN;
+
+        *value = tile[index_x][index_y];
+    }
+}
+
+/* Finds and removes all duplicate nodes. */
+static int
+remove_duplicates (EngNode *new_tiles, int nb_new_tiles)
+{
+    for (int i = 0; i < nb_new_tiles; i++) {
+        for (int j = i + 1; j < nb_new_tiles; j++) {
 
             /* Find duplicate(s). */
-            if (newTiles[i].x == newTiles[j].x &&
-                newTiles[i].y == newTiles[j].y) {
+            if (new_tiles[i].x == new_tiles[j].x &&
+                new_tiles[i].y == new_tiles[j].y) {
+
                 /*
                  * Once duplicate is found, write the data of the next index
                  * over it, repeat process until there is no more data to
                  * handle, then free one slot of memory.
                  */
-                for (int k = j; k < nbNewTiles-1; k++) {
-                    newTiles[k] = newTiles[k+1];
+                for (int k = j; k < nb_new_tiles - 1; k++) {
+                    new_tiles[k].x = new_tiles[k + 1].x;
+                    new_tiles[k].y = new_tiles[k + 1].y;
+                    new_tiles[k].d = new_tiles[k + 1].d;
                 }
 
                 /* Decrease size of array. */
-                newTiles = (Triplet*) realloc(newTiles, (nbNewTiles - 1) *
-                                              sizeof(Triplet));
-                nbNewTiles--;
+                nb_new_tiles -= 1;
 
                 /*
                  * Decrementing j here makes it so we can identify multiple
@@ -302,7 +471,7 @@ removeDuplicates(Triplet* newTiles, int nbNewTiles)
         }
     }
 
-    return nbNewTiles;
+    return nb_new_tiles;
 }
 
 /*
@@ -312,11 +481,11 @@ removeDuplicates(Triplet* newTiles, int nbNewTiles)
  * to true, otherwise, tiles are assigned 0.
  */
 static void
-getMapInfo(Chunk chunk[], int tile[][TILESY*NBCHUNKS/2])
+get_collision_map (EngChunk chunk[], int tile[][TILESY*NBCHUNKS/2])
 {
     int order[NBCHUNKS];
     int index = 0;
-    chunkGetOrderOfChunks(chunk, order);
+    chunk_get_order_of_chunks (chunk, order);
 
     /* We iterate for every tile in the four chunks combined map. */
     for (int i = 0; i < TILESX * NBCHUNKS / 2; i++) {
@@ -324,19 +493,19 @@ getMapInfo(Chunk chunk[], int tile[][TILESY*NBCHUNKS/2])
 
             /* Find the chunk index corresponding to the pair (i, j). */
             index = 0;
-            if (i >= TILESX) index += 1;
-            if (j >= TILESY) index += 2;
+            if (i >= TILESX)
+                index += 1;
+            if (j >= TILESY)
+                index += 2;
 
             /*
              * Finally, set the value of each tile to -1 if there is
              * collision on the original tile.
              */
-            if (chunk[order[index]].tile[i % TILESX][j % TILESY].collision) {
+            if (chunk[order[index]].tile[i % TILESX][j % TILESY].has_collision)
                 tile[i % (TILESX * 2)][j % (TILESY * 2)] = -1;
-            }
-            else {
+            else
                 tile[i % (TILESX * 2)][j % (TILESY * 2)] = 0;
-            }
         }
     }
 }
@@ -347,28 +516,28 @@ getMapInfo(Chunk chunk[], int tile[][TILESY*NBCHUNKS/2])
  * the index of the array.
  */
 static void
-chunkGetOrderOfChunks(Chunk chunk[], int order[])
+chunk_get_order_of_chunks (EngChunk chunk[], int order[])
 {
     /*
      * Sort in 2D to get the order of chunks, following the logic
-     * of the chunkRotateChunks functions.
+     * of the eng_chunk_rotate_chunks functions.
      */
-    if (NBCHUNKS > 3 && chunk[0].chunkX < chunk[1].chunkX &&
-        chunk[0].chunkY < chunk[2].chunkY) {
+    if (NBCHUNKS > 3 && chunk[0].chunk_x < chunk[1].chunk_x &&
+        chunk[0].chunk_y < chunk[2].chunk_y) {
         order[0] = 0;
         order[1] = 1;
         order[2] = 2;
         order[3] = 3;
     }
-    else if (NBCHUNKS > 3 && chunk[0].chunkX > chunk[1].chunkX &&
-             chunk[0].chunkY < chunk[2].chunkY) {
+    else if (NBCHUNKS > 3 && chunk[0].chunk_x > chunk[1].chunk_x &&
+             chunk[0].chunk_y < chunk[2].chunk_y) {
         order[0] = 1;
         order[1] = 0;
         order[2] = 3;
         order[3] = 2;
     }
-    else if (NBCHUNKS > 3 && chunk[0].chunkX < chunk[1].chunkX &&
-             chunk[0].chunkY > chunk[2].chunkY) {
+    else if (NBCHUNKS > 3 && chunk[0].chunk_x < chunk[1].chunk_x &&
+             chunk[0].chunk_y > chunk[2].chunk_y) {
         order[0] = 2;
         order[1] = 3;
         order[2] = 0;
@@ -387,19 +556,18 @@ chunkGetOrderOfChunks(Chunk chunk[], int order[])
  * of an array of size TILESX * NBCHUNKS / 2 by TILESY * NBCHUNKS / 2.
  */
 static bool
-respectsArrayLimits(Point2d startingPoint, Point2d endingPoint)
+respects_array_limits (EngPoint2d starting_point, EngPoint2d ending_point)
 {
     bool result = true;
 
-    if (startingPoint.x < 0 || startingPoint.y < 0 ||
-        endingPoint.x < 0 || endingPoint.y < 0) {
+    if (starting_point.x < 0 || starting_point.y < 0 ||
+        ending_point.x < 0 || ending_point.y < 0) {
         result = false;
     }
-
-    if (startingPoint.x >= TILESX * NBCHUNKS / 2 ||
-        startingPoint.y >= TILESY * NBCHUNKS / 2 ||
-        endingPoint.x >= TILESX * NBCHUNKS / 2 ||
-        endingPoint.y >= TILESY * NBCHUNKS / 2) {
+    else if (starting_point.x >= TILESX * NBCHUNKS / 2 ||
+             starting_point.y >= TILESY * NBCHUNKS / 2 ||
+             ending_point.x >= TILESX * NBCHUNKS / 2 ||
+             ending_point.y >= TILESY * NBCHUNKS / 2) {
         result = false;
     }
 
@@ -408,9 +576,17 @@ respectsArrayLimits(Point2d startingPoint, Point2d endingPoint)
 
 /* Frees memory allocated to a path. */
 void
-pathfindDestroyPath(Path *path)
+eng_pathfind_destroy_path (EngPath **path)
 {
-    if (path->nbSteps > 0) {
-        free(path->direction);
+    EngPath *path_ptr = *path;
+
+    if (*path != NULL) {
+        if (path_ptr->direction != NULL) {
+            free (path_ptr->direction);
+            path_ptr->direction = NULL;
+        }
+
+        free (*path);
+        *path = NULL;
     }
 }

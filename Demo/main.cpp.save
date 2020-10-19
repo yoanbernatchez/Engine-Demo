@@ -2,107 +2,180 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <windows.h>
+#include <time.h>
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
-#include "character/player.h"
-#include "objects/objects.h"
-#include "../Mini_Engine/Render/render.h"
+
+/* Engine includes. */
 #include "../Mini_Engine/Engine/globals.h"
-#include "../Mini_Engine/HUD/window.h"
+#include "../Mini_Engine/Render/render.h"
+#include "../Mini_Engine/HUD/hud.h"
 #include "../Mini_Engine/Time/time.h"
-#include "../Mini_Engine/File_Utilities/file_utilities.h"
-
 #include "../Mini_Engine/Chunks/chunk.h"
-#include "../Mini_Engine/Chunks/tile.h"
 #include "../Mini_Engine/Characters/character.h"
-
-#include "../Mini_Engine/Events/events.h"
 #include "../Mini_Engine/Collision/collision_handler.h"
-#include "../Mini_Engine/Chunks/pathfinding.h"
+#include "../Mini_Engine/Events/events.h"
 #include "../Mini_Engine/Tests/tests.h"
 
-int main(int argc, char * argv[])
+/* Engine Demo includes. */
+#include "character/entity.h"
+#include "character/npc.h"
+#include "character/player.h"
+#include "objects/objects.h"
+#include "hud/hud_handler.h"
+#include "map/map.h"
+
+int
+main (int argc, char * argv[])
 {
+    /*
+     * Specifies that argc and argv are unused to the compiler (SDL requires a
+     * main signature with argc and argv to compile).
+     */
+    (void) argc;
+    (void) argv;
+
+    /*---- Initialization ---------------------------------------------------*/
+
     /* Initialize SDL. */
-    SDL_Init(SDL_INIT_EVERYTHING);
-    TTF_Init();
+    SDL_Init (SDL_INIT_EVERYTHING);
+    TTF_Init ();
 
     /* Create base window and renderer. */
     SDL_Window* window;
-    window = SDL_CreateWindow("Demo", SDL_WINDOWPOS_CENTERED,
-                              SDL_WINDOWPOS_CENTERED, 900, 700,
-                              SDL_WINDOW_RESIZABLE);
+    window = SDL_CreateWindow ("Engine Demo", SDL_WINDOWPOS_CENTERED,
+                               SDL_WINDOWPOS_CENTERED, 900, 700,
+                               SDL_WINDOW_RESIZABLE);
 
     SDL_Renderer* renderer;
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    renderer = SDL_CreateRenderer (window, -1, SDL_RENDERER_ACCELERATED);
 
     if (window == NULL || renderer == NULL) {
-       printf("Could not create window or renderer.\n");
+       printf ("Could not create SDL window or renderer.\n");
        return -1;
     }
 
-    /* Initialize chunks. */
-    Chunk chunk[NBCHUNKS];
-    for(int i = 0; i < NBCHUNKS; i++){
-        chunk[i] = chunkCreateChunk();
-    }
+    SDL_SetRenderDrawBlendMode (renderer, SDL_BLENDMODE_BLEND);
 
-    /* Initialize characters. */
-    Character character[2];
-    character[0] = characterCreateCharacter(0, 0, 50/2, 75, 50, 75, 40, 40, true);
-    playerCreateTimers(&character[0], 1);
-    character[1] = characterCreateCharacter(-100, 0, 50/2, 75, 50, 75, 40, 40, false);
+    /* Initialize random number generator. */
+    time_t t;
+    srand ((unsigned) time(&t));
 
     /* Load sprite sheets. */
-    SDL_Texture *villagerText[1];
-    villagerText[0] = getVillagerTexture(renderer);
-    SDL_Texture *objectText[1];
-    objectText[0] = getObjectsTexture(renderer);
-    SDL_Surface *tileSurf = IMG_Load("Demo/assets/tile_sprite.bmp");
-    SDL_Texture *tileText[1];
-    tileText[0] = SDL_CreateTextureFromSurface(renderer, tileSurf);
-    if(tileText == NULL) printf("Could not load tile sprites.\n");
+    SDL_Texture *villager_text[1];
+    villager_text[0] = entity_get_villager_texture (renderer);
 
-    characterCenterOnScreen(window, &character[0]);
+    SDL_Texture *object_text[1];
+    object_text[0] = object_get_texture (renderer);
 
-    /* Run engine tests. */
-    engineTestAll();
+    SDL_Texture *tile_text[1];
+    tile_text[0] = tile_get_texture (renderer);
 
-    SDL_Event sdlEvent;
-    EngineEvent event = {false, false, false, false};
-    double renderTimer = timeGetRealTime();
+    SDL_Texture *hud_text = hud_get_texture (renderer);
 
-    /* Main Loop. */
-    while(eventHandleEvents(sdlEvent, &event)){
+    /* Initialize chunks. */
+    EngChunk chunk[NBCHUNKS];
+    for (int i = 0; i < NBCHUNKS; i++)
+        chunk[i] = eng_chunk_create_chunk ();
 
-        SDL_PollEvent(&sdlEvent);
+    /* Initialize characters. */
+    int nb_entities = 6;
+    EngCollision collision = {false, false, false, false};
+    Entity entity[nb_entities];
+    entity_load_presets (window, entity);
+    EngCharacter render_char[nb_entities];
 
-        /* Updating. */
-        characterUpdate(character[0], &character[0]);
-        characterSetCollision(&character[0], getCollisionInfo(chunk, character[0], event));
-        playerWalk(&character[0], event);
-        objectAssignProperties(chunk, 0);
-        characterUpdate(character[0], &character[1]);
-        chunkRotateChunks(chunk, character[0].x, character[0].y,
-                          characterGetChunkX(character[0].x), characterGetChunkY(character[0].y));
+    /* Initialize huds. */
+    EngHud hud[1];
+    hud_load_presets (window, renderer, hud);
 
-        if(event.windowResized){
-            characterCenterOnScreen(window, &character[0]);
-            event.windowResized = false;
+    /* Initialize events. */
+    SDL_Event sdl_event;
+    EngEvent event = {false, false, false, false, false};
+
+    /* Initialize timers. */
+    double render_timer = 0;
+    double hud_timer[2] = {0, 0};
+    double object_timer = 0;
+
+    /* Run engine unit tests. */
+    //eng_test_all();
+
+    /*---- Main Loop. -------------------------------------------------------*/
+    while (eng_event_handle_events (sdl_event, &event)) {
+
+        SDL_PollEvent(&sdl_event);
+        SDL_Delay(1);
+
+        /* Updating entities. */
+        for (int i = 0; i < nb_entities; i++) {
+            eng_char_update (entity[0].character, &entity[i].character);
+        }
+
+        collision = eng_get_char_collision (chunk,entity[0].character, event);
+        eng_char_set_collision (&entity[0].character, collision);
+
+        player_handler (&entity[0].character, event);
+        npc_handler (chunk, entity, nb_entities);
+
+        /* Updating the map. */
+        map_handler (chunk, entity[0].character);
+
+        /* Updating objects. */
+        object_handler (chunk, &object_timer);
+
+        /* Updating huds. */
+        hud_handler (window, renderer, hud, &entity[0].character, hud_timer);
+
+        /* If the window is resized, we center the huds and the player. */
+        if (event.window_resized) {
+            hud_center_huds (window, &hud[0]);
+            eng_char_center_on_screen (window, &entity[0].character);
+            event.window_resized = false;
         }
 
         /* Rendering. */
-        if(timeHasElapsed(&renderTimer, true, MILLISECOND, 17)){
-            renderTiles(renderer, chunk, character[0], tileText, 1);
+        if (eng_has_time_elapsed (&render_timer, true, ENG_MILLISECOND, 17)) {
+            eng_render_tiles (renderer, chunk, entity[0].character,
+                              tile_text, 1);
+            /*
+             * eng_render_objects takes an array of characters as parameters,
+             * but since characters are hidden in an entity structure, we need
+             * to reassemble them in a separate array.
+             */
+            for (int i = 0; i < nb_entities; i++) {
+                render_char[i] = entity[i].character;
+            }
 
-            renderHybridObjects(renderer, villagerText, objectText, character, 2, chunk);
-            SDL_RenderPresent(renderer);
+            eng_render_objects (renderer, villager_text, object_text,
+                                render_char, 2, chunk);
+            eng_hud_to_renderer (renderer, hud_text, hud[0]);
+            SDL_RenderPresent (renderer);
         }
     }
 
-    /* Destroy allocated resources. */
-    SDL_DestroyTexture(villagerText[0]);
+    /*---- Destroy all allocated resources and end program. -----------------*/
+    for (int i = 0; i < nb_entities; i++)
+        entity_destroy (&entity[i]);
+
+    for (int i = 0; i < nb_entities; i++)
+        eng_char_destroy_character (&render_char[i]);
+
+    for (int i = 0; i < NBCHUNKS; i++)
+        eng_chunk_destroy (&chunk[i]);
+
+    eng_hud_destroy (&hud[0]);
+
+    SDL_DestroyTexture (villager_text[0]);
+    SDL_DestroyTexture (object_text[0]);
+    SDL_DestroyTexture (tile_text[0]);
+
+    SDL_DestroyRenderer (renderer);
+    SDL_DestroyWindow (window);
+
+    TTF_Quit ();
+    SDL_Quit ();
 
     return 0;
 }

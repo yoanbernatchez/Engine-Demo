@@ -13,9 +13,9 @@
  * program.
  */
 double
-timeGetRealTime(void)
+eng_get_real_time (void)
 {
-    return (double) clock() / CLOCKS_PER_SEC;
+    return (double) clock () / CLOCKS_PER_SEC;
 }
 
 /*
@@ -23,35 +23,41 @@ timeGetRealTime(void)
  * a time ratio (game time ratio).
  */
 double
-timeGetGameTime(void)
+eng_get_game_time (void)
 {
-    return (double) clock() / CLOCKS_PER_SEC * TIMERATIO;
+    return (double) clock () / CLOCKS_PER_SEC * ENG_TIME_RATIO;
 }
 
-/* Updates a Time structure to the current real time. */
-void
-timeUpdateRealTime(Time *realTime)
+/* Returns a Time structure with current real time information. */
+EngTime
+eng_get_real_time_struct (void)
 {
-    double currentTime = timeGetRealTime();
+    EngTime real_time;
+    double current_time = eng_get_real_time ();
 
-    realTime->day = (int) currentTime / 86400;
-    realTime->hour = (int) currentTime / 3600 % 24;
-    realTime->minute = (int) currentTime / 60 % 60;
-    realTime->second = (int) currentTime % 60;
-    realTime->millisecond = (int) currentTime * 1000 % 1000;
+    real_time.day = (int) current_time / 86400;
+    real_time.hour = (int) (current_time / 3600) % 24;
+    real_time.minute = (int) (current_time / 60) % 60;
+    real_time.second = (int) current_time % 60;
+    real_time.millisecond = (int) (current_time * 1000) % 1000;
+
+    return real_time;
 }
 
-/* Updates a Time structure to the current game time. */
-void
-timeUpdateIngameTime(Time *gameTime)
+/* Returns a Time structure with the current game time information. */
+EngTime
+eng_get_game_time_struct (void)
 {
-    double currentGameTime = timeGetRealTime() * TIMERATIO;
+    EngTime game_time;
+    double current_game_time = eng_get_real_time () * ENG_TIME_RATIO;
 
-    gameTime->day = (int) currentGameTime / 86400;
-    gameTime->hour = (int) currentGameTime / 3600 % 24;
-    gameTime->minute = (int) currentGameTime / 60 % 60;
-    gameTime->second = (int) currentGameTime % 60;
-    gameTime->millisecond = (int) currentGameTime * 1000 % 1000;
+    game_time.day = (int) current_game_time / 86400;
+    game_time.hour = (int) (current_game_time / 3600) % 24;
+    game_time.minute = (int) (current_game_time / 60) % 60;
+    game_time.second = (int) current_game_time % 60;
+    game_time.millisecond = (int) (current_game_time * 1000) % 1000;
+
+    return game_time;
 }
 
 /*
@@ -59,7 +65,8 @@ timeUpdateIngameTime(Time *gameTime)
  * timer and returns a boolean (true if time has elapsed, false otherwise).
  */
 bool
-timeHasElapsed(double *timer, bool realTime, timeType type, double amount)
+eng_has_time_elapsed (double *timer, bool real_time, EngTimeType type,
+                      double amount)
 {
     bool result = false;
     double time = 0;
@@ -68,52 +75,43 @@ timeHasElapsed(double *timer, bool realTime, timeType type, double amount)
      * Check if the time is based on real or game time and give value to time
      * accordingly.
      */
-    if (realTime) {
-        time = timeGetRealTime();
-    }
-    else {
-        time = timeGetGameTime();
-    }
+    if (real_time)
+        time = eng_get_real_time ();
+    else
+        time = eng_get_game_time ();
 
     /* Test if time has elapsed. */
     switch (type) {
-        case DAY:
-            if (time > *timer + amount * 86400) {
-               result = true;
-            }
-            break;
-        case HOUR:
-            if (time > *timer + amount * 3600) {
-               result = true;
-            }
-            break;
-        case MINUTE:
-            if (time > *timer + amount * 60) {
-               result = true;
-            }
-            break;
-        case SECOND:
-            if (time > *timer + amount) {
-                result = true;
-            }
-            break;
-        case MILLISECOND:
-            if (time > *timer + amount / 1000) {
-                result = true;
-            }
-            break;
+    case ENG_DAY:
+        if (time > *timer + amount * 86400)
+            result = true;
+        break;
+    case ENG_HOUR:
+        if (time > *timer + amount * 3600)
+            result = true;
+        break;
+    case ENG_MINUTE:
+        if (time > *timer + amount * 60)
+            result = true;
+        break;
+    case ENG_SECOND:
+        if (time > *timer + amount)
+            result = true;
+        break;
+    case ENG_MILLISECOND:
+        if (time > *timer + amount / 1000)
+            result = true;
+        break;
     }
 
     /*
      * Update the value of the timer to the current time according to whether
      * the time was based on real or game time.
      */
-    if (realTime && result) {
-        *timer = timeGetRealTime();
-    }
-    else if (!realTime && result) {
-        *timer = timeGetGameTime();
-    }
+    if (real_time && result)
+        *timer = eng_get_real_time ();
+    else if (!real_time && result)
+        *timer = eng_get_game_time ();
 
     return result;
 }

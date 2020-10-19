@@ -1,0 +1,8 @@
+#ifndef MAP_H_INCLUDED
+#define MAP_H_INCLUDED
+
+#include "../../Mini_Engine/Engine/globals.h"
+
+void map_handler (EngChunk chunk[], EngCharacter character);
+
+#endif /* MAP_H_INCLUDED */

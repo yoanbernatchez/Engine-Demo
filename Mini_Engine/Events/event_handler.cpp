@@ -3,87 +3,73 @@
  * Date: 2020-09-21
  *
  * This file contains a function that registers keyboard, window and
- * mouse events to a structure (EngineEvent). The function can be modified
- * to register more events, but EngineEvent should also be modified if this
+ * mouse events to a structure (EngEvent). The function can be modified
+ * to register more events, but EngEvent should also be modified if this
  * is the case.
  */
 
 #include "events.h"
-#include <stdio.h>
 
 /*
  * Transforms SDL events to booleans stored in an EngineEvent structure.
  *
- * This function should be modified by the user (adding handled events
+ * This function can be modified by the user (for adding handled events
  * and such).
  *
- * Modify the EngineEvent structure if you add handled events.
+ * Modify the EngEvent structure if you add handled events.
  */
-bool eventHandleEvents(SDL_Event sdlEvent, EngineEvent* event)
+bool
+eng_event_handle_events (SDL_Event sdl_event, EngEvent *event)
 {
-    bool handleEvents = true;
+    bool keep_handling_events = true;
 
-    switch(sdlEvent.type)
-    {
-        case SDL_QUIT:
-            handleEvents = false;
+    switch (sdl_event.type) {
+    case SDL_QUIT:
+        keep_handling_events = false;
+        break;
+    case SDL_WINDOWEVENT:
+        switch (sdl_event.window.event) {
+        case SDL_WINDOWEVENT_RESIZED:
+            event->window_resized = true;
             break;
-
-        case SDL_WINDOWEVENT:
-            switch(sdlEvent.window.event)
-            {
-                case SDL_WINDOWEVENT_RESIZED:
-                    event->windowResized = true;
-                    break;
-            }
+        }
+        break;
+    case SDL_KEYDOWN:
+        switch (sdl_event.key.keysym.sym) {
+        case SDLK_LEFT:
+            event->left_pressed = true;
             break;
-
-        case SDL_KEYDOWN:
-            switch(sdlEvent.key.keysym.sym)
-            {
-                case SDLK_LEFT:
-                    event->leftPressed = true;
-                    break;
-
-                case SDLK_RIGHT:
-                    event->rightPressed = true;
-                    break;
-
-                case SDLK_UP:
-                    event->upPressed = true;
-                    break;
-
-                case SDLK_DOWN:
-                    event->downPressed = true;
-                    break;
-
-                case SDLK_ESCAPE:
-                    handleEvents = false;
-                    break;
-            }
+        case SDLK_RIGHT:
+            event->right_pressed = true;
             break;
-
-        case SDL_KEYUP:
-            switch(sdlEvent.key.keysym.sym)
-            {
-                case SDLK_LEFT:
-                    event->leftPressed = false;
-                    break;
-
-                case SDLK_RIGHT:
-                    event->rightPressed = false;
-                    break;
-
-                case SDLK_UP:
-                    event->upPressed = false;
-                    break;
-
-                case SDLK_DOWN:
-                    event->downPressed = false;
-                    break;
-            }
+        case SDLK_UP:
+            event->up_pressed = true;
             break;
+        case SDLK_DOWN:
+            event->down_pressed = true;
+            break;
+        case SDLK_ESCAPE:
+            keep_handling_events = false;
+            break;
+        }
+        break;
+    case SDL_KEYUP:
+        switch (sdl_event.key.keysym.sym) {
+        case SDLK_LEFT:
+            event->left_pressed = false;
+            break;
+        case SDLK_RIGHT:
+            event->right_pressed = false;
+            break;
+        case SDLK_UP:
+            event->up_pressed = false;
+            break;
+        case SDLK_DOWN:
+            event->down_pressed = false;
+            break;
+        }
+        break;
     }
 
-    return handleEvents;
+    return keep_handling_events;
 }
