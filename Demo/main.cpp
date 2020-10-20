@@ -1,3 +1,15 @@
+/*===========================================================================*/
+/* File: main.cpp                                                            */
+/* Author: YOAN BERNATCHEZ                                                   */
+/* Created On: 2020-10-15                                                    */
+/* Developed Using: SDL2                                                     */
+/* Project: The Demo folder contains code that utilizes the game engine to   */
+/*          showcase the engine's capabilities through a mini game that has  */
+/*          no purpose.                                                      */
+/* Function: Contains the main function that gives a structure to the mini   */
+/*           game, initialization, updating, rendering, freeing, exiting.    */
+/*===========================================================================*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -101,6 +113,8 @@ main (int argc, char * argv[])
 
     /* Run engine unit tests. */
     eng_test_all();
+
+    printf ("Walk using the directional arrows on your keyboard.\n");
 
     /*---- Main Loop. -------------------------------------------------------*/
     while (eng_event_handle_events (sdl_event, &event)) {

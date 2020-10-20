@@ -1,3 +1,11 @@
+/*===========================================================================*/
+/* File: chunk.cpp                                                           */
+/* Author: YOAN BERNATCHEZ                                                   */
+/* Created On: 2020-07-16                                                    */
+/* Developed Using: SDL2                                                     */
+/* Function: Provides the user with a way to store tile and object data.     */
+/*===========================================================================*/
+
 #include <stdio.h>
 #include <string.h>
 #include "chunk.h"

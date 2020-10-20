@@ -1,3 +1,12 @@
+/*===========================================================================*/
+/* File: collision_handler.cpp                                               */
+/* Author: YOAN BERNATCHEZ                                                   */
+/* Created On: 2020-08-05                                                    */
+/* Developed Using: SDL2                                                     */
+/* Function: Provides the user with a function that retrieves collision data */
+/*           between a character and tiles.                                  */
+/*===========================================================================*/
+
 #include <stdbool.h>
 #include "../Characters/character.h"
 #include "collision_handler.h"

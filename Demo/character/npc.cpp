@@ -1,3 +1,11 @@
+/*===========================================================================*/
+/* File: npc.cpp                                                             */
+/* Author: YOAN BERNATCHEZ                                                   */
+/* Created On: 2020-10-15                                                    */
+/* Developed Using: SDL2                                                     */
+/* Function: Provides functions to control npcs.                             */
+/*===========================================================================*/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>

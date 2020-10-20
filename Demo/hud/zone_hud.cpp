@@ -1,3 +1,11 @@
+/*===========================================================================*/
+/* File: zone_handler.cpp                                                    */
+/* Author: YOAN BERNATCHEZ                                                   */
+/* Created On: 2020-10-17                                                    */
+/* Developed Using: SDL2                                                     */
+/* Function: Provides a function that handles zone hud updates.              */
+/*===========================================================================*/
+
 #include <stdlib.h>
 #include "hud_handler.h"
 #include "zone_hud.h"
@@ -34,7 +42,8 @@ static void hide_region (EngHud *hud, double *timer);
  * @param object_index: Index of the text box in the hud structure.
  * @param zone:         Zone id.
  */
-static void change_zone_text (SDL_Renderer *renderer, EngHud *hud, int object_index, int zone);
+static void change_zone_text (SDL_Renderer *renderer, EngHud *hud,
+                              int object_index, int zone);
 
 /**
  * @brief Resizes the zone hud based on a texture corresponding to text
@@ -198,7 +207,7 @@ change_zone_text (SDL_Renderer *renderer, EngHud *hud, int object_index,
         zone_name = "My Room";
         break;
     case 1:
-        zone_name = "Eastern Farm";
+        zone_name = "Western Farm";
         break;
     case 2:
         zone_name = "Path Finding Demo";

@@ -1,3 +1,15 @@
+/*===========================================================================*/
+/* File: main.cpp                                                            */
+/* Author: YOAN BERNATCHEZ                                                   */
+/* Created On: 2020-10-15                                                    */
+/* Developed Using: SDL2                                                     */
+/* Project: The Demo folder contains code that utilizes the game engine to   */
+/*          showcase the engine's capabilities through a mini game that has  */
+/*          no purpose.                                                      */
+/* Function: Contains the main function that gives a structure to the mini   */
+/*           game, initialization, updating, rendering, freeing, exiting.    */
+/*===========================================================================*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -80,7 +92,7 @@ main (int argc, char * argv[])
         chunk[i] = eng_chunk_create_chunk ();
 
     /* Initialize characters. */
-    int nb_entities = 6;
+    int nb_entities = 7;
     EngCollision collision = {false, false, false, false};
     Entity entity[nb_entities];
     entity_load_presets (window, entity);
@@ -100,13 +112,19 @@ main (int argc, char * argv[])
     double object_timer = 0;
 
     /* Run engine unit tests. */
-    //eng_test_all();
+    eng_test_all();
+    
+    printf ("\nWalk using the directional arrows on your keyboard.\n"
+            "You can enter houses or simply look around.")
 
     /*---- Main Loop. -------------------------------------------------------*/
     while (eng_event_handle_events (sdl_event, &event)) {
 
         SDL_PollEvent(&sdl_event);
         SDL_Delay(1);
+
+        /* Updating the map. */
+        map_handler (chunk, entity[0].character);
 
         /* Updating entities. */
         for (int i = 0; i < nb_entities; i++) {
@@ -118,9 +136,6 @@ main (int argc, char * argv[])
 
         player_handler (&entity[0].character, event);
         npc_handler (chunk, entity, nb_entities);
-
-        /* Updating the map. */
-        map_handler (chunk, entity[0].character);
 
         /* Updating objects. */
         object_handler (chunk, &object_timer);
@@ -149,7 +164,7 @@ main (int argc, char * argv[])
             }
 
             eng_render_objects (renderer, villager_text, object_text,
-                                render_char, 2, chunk);
+                                render_char, nb_entities, chunk);
             eng_hud_to_renderer (renderer, hud_text, hud[0]);
             SDL_RenderPresent (renderer);
         }

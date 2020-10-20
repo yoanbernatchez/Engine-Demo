@@ -1,3 +1,11 @@
+/*===========================================================================*/
+/* File: collision.cpp                                                       */
+/* Author: YOAN BERNATCHEZ                                                   */
+/* Created On: 2020-10-18                                                    */
+/* Developed Using: SDL2                                                     */
+/* Function: Provides a function that sets collision in chunks.              */
+/*===========================================================================*/
+
 #include "../../Mini_Engine/Engine/globals.h"
 #include "../../Mini_Engine/Chunks/tile.h"
 #include "collision.h"

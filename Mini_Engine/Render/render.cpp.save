@@ -1,3 +1,12 @@
+/*===========================================================================*/
+/* File: render.cpp                                                          */
+/* Author: YOAN BERNATCHEZ                                                   */
+/* Created On: 2020-09-27                                                    */
+/* Developed Using: SDL2                                                     */
+/* Function: This file provides the user with functions to render chunks and */
+/*           characters.                                                     */
+/*===========================================================================*/
+
 #include "render.h"
 
 typedef struct _RenderObject {
@@ -110,19 +119,10 @@ eng_render_tiles (SDL_Renderer *renderer, EngChunk chunk[],
         }
     }
 }
-
-/**
- * @brief Renders objects and characters in a specific order on screen.
- *
- * @param renderer:      Renderer to copy to.
- * @param char_text:     Character sprite textures.
- * @param obj_text:      Object sprite textures.
- * @param character:     Array of characters to print on screen.
- * @param nb_characters: Number of characters to print on screen.
- * @param chunk:         Chunks containing the objects to render.
+/*
+ * Renders objects and characters in a specific order on screen.
+ * TODO: Make this function less chaotic.
  */
-/*Renders objects and characters in a specific order on screen.
- *TODO: Make this function less chaotic. */
 void
 eng_render_objects (SDL_Renderer *renderer, SDL_Texture *char_text[],
                            SDL_Texture *obj_text[], EngCharacter character[],

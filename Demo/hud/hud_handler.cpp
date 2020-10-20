@@ -1,3 +1,11 @@
+/*===========================================================================*/
+/* File: hud_handler.cpp                                                     */
+/* Author: YOAN BERNATCHEZ                                                   */
+/* Created On: 2020-10-17                                                    */
+/* Developed Using: SDL2                                                     */
+/* Function: Provides a function that handles all the huds in the game.      */
+/*===========================================================================*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>

@@ -1,3 +1,11 @@
+/*===========================================================================*/
+/* File: npc.cpp                                                             */
+/* Author: YOAN BERNATCHEZ                                                   */
+/* Created On: 2020-10-15                                                    */
+/* Developed Using: SDL2                                                     */
+/* Function: Provides functions to control npcs.                             */
+/*===========================================================================*/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -60,7 +68,7 @@ npc_idle_rotation (Entity entity[], int nb_entities)
 
     for (int i = 1; i < nb_entities; i++) {
         if (entity[i].character.action_id == ENTITY_IDLE &&
-            eng_has_time_elapsed (&entity[i].character.timer[i], true,
+            eng_has_time_elapsed (&entity[i].character.timer[1], true,
                                   ENG_SECOND, 1)) {
             random_number = rand() % 10;
 

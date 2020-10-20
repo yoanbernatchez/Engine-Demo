@@ -1,3 +1,12 @@
+/*===========================================================================*/
+/* File: pathfinding.cpp                                                     */
+/* Author: YOAN BERNATCHEZ                                                   */
+/* Created On: 2020-09-12                                                    */
+/* Developed Using: SDL2                                                     */
+/* Function: Provides the user with a way to create paths and delete paths   */
+/*           used for pathfinding.                                           */
+/*===========================================================================*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -418,7 +427,7 @@ add_step (int tile[][TILESY*NBCHUNKS/2], EngPath *path, int dir_index,
     int index_x = starting_point.x + offset_x;
     int index_y = starting_point.y + offset_y;
 
-    /* Add a direction step / direction when condition is true. */ 
+    /* Add a direction step / direction when condition is true. */
     if (tile[index_x][index_y] < *value &&
         tile[index_x][index_y] > -1) {
 

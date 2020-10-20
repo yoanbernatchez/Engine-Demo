@@ -1,3 +1,12 @@
+/*===========================================================================*/
+/* File: tests.cpp                                                           */
+/* Author: YOAN BERNATCHEZ                                                   */
+/* Created On: 2020-07-29                                                    */
+/* Developed Using: SDL2                                                     */
+/* Function: This file manages all the unit tests for the functions used by  */
+/*           the engine.                                                     */
+/*===========================================================================*/
+
 #include <stdio.h>
 #include "tests.h"
 #include "test_hud.h"

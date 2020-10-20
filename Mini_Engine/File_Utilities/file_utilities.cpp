@@ -1,12 +1,10 @@
-/*
- * Author: YOAN BERNATCHEZ
- * Date: 2020-09-23
- *
- * This file provides the user with functions to manipulate files. For
- * example, it provides a safer and customized way to close files. It
- * also contain a basic word finding function and a file modification
- * function.
- */
+/*===========================================================================*/
+/* File: file_utilities.cpp                                                  */
+/* Author: YOAN BERNATCHEZ                                                   */
+/* Created On: 2020-09-23                                                    */
+/* Developed Using: SDL2                                                     */
+/* Function: Provides the user with functions to manipulate files.           */
+/*===========================================================================*/
 
 #include <stdlib.h>
 #include <string.h>

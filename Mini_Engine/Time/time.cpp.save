@@ -1,9 +1,10 @@
-/*
- * Author: YOAN BERNATCHEZ
- * Date: 2020-09-22
- *
- * This file provides the user simple time functionalities.
- */
+/*===========================================================================*/
+/* File: time.cpp                                                            */
+/* Author: YOAN BERNATCHEZ                                                   */
+/* Created On: 2020-07-18                                                    */
+/* Developed Using: SDL2                                                     */
+/* Function: This file provides the user simple time functionalities.        */
+/*===========================================================================*/
 
 #include <time.h>
 #include "time.h"

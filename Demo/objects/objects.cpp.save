@@ -1,3 +1,11 @@
+/*===========================================================================*/
+/* File: objects.cpp                                                         */
+/* Author: YOAN BERNATCHEZ                                                   */
+/* Created On: 2020-10-14                                                    */
+/* Developed Using: SDL2                                                     */
+/* Function: Provides functions to handle game objects.                      */
+/*===========================================================================*/
+
 #include <stdio.h>
 #include <SDL.h>
 #include <SDL_image.h>
@@ -161,10 +169,21 @@ object_assign_properties (EngChunk chunk[])
                 break;
             /* Small desk. */
             case 9:
-                chunk[i].object[j].src.x = 246;
-                chunk[i].object[j].src.y = 0;
+                chunk[i].object[j].src.x = 245;
+                chunk[i].object[j].src.y = 142;
                 chunk[i].object[j].src.w = 64;
                 chunk[i].object[j].src.h = 64;
+                chunk[i].object[j].center_y = 0;
+                chunk[i].object[j].nb_frames = 1;
+                chunk[i].object[j].render_mode = ENG_RENDER_HYBRID;
+                chunk[i].object[j].texture_index = 0;
+                break;
+            /* Stove top. */
+            case 10:
+                chunk[i].object[j].src.x = 246;
+                chunk[i].object[j].src.y = 211;
+                chunk[i].object[j].src.w = 64;
+                chunk[i].object[j].src.h = 79;
                 chunk[i].object[j].center_y = 0;
                 chunk[i].object[j].nb_frames = 1;
                 chunk[i].object[j].render_mode = ENG_RENDER_HYBRID;
@@ -173,7 +192,6 @@ object_assign_properties (EngChunk chunk[])
             }
         }
     }
-
 }
 
 /* Handles changes and updates objects on the map. */

@@ -1,3 +1,11 @@
+/*===========================================================================*/
+/* File: entity.cpp                                                          */
+/* Author: YOAN BERNATCHEZ                                                   */
+/* Created On: 2020-10-15                                                    */
+/* Developed Using: SDL2                                                     */
+/* Function: Provides functions to create and delete entities.               */
+/*===========================================================================*/
+
 #include <stdio.h>
 #include <SDL.h>
 #include <SDL_image.h>

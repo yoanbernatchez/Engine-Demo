@@ -1,3 +1,12 @@
+/*===========================================================================*/
+/* File: pathfinding.cpp                                                     */
+/* Author: YOAN BERNATCHEZ                                                   */
+/* Created On: 2020-09-12                                                    */
+/* Developed Using: SDL2                                                     */
+/* Function: Provides the user with a way to create paths and delete paths   */
+/*           used for pathfinding.                                           */
+/*===========================================================================*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

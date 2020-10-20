@@ -1,3 +1,12 @@
+/*===========================================================================*/
+/* File: player.cpp                                                          */
+/* Author: YOAN BERNATCHEZ                                                   */
+/* Created On: 2020-10-15                                                    */
+/* Developed Using: SDL2                                                     */
+/* Function: Provides functions to get data from the player or               */
+/*           do something with the data.                                     */
+/*===========================================================================*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>

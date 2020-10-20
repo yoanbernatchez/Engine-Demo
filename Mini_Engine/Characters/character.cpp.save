@@ -1,3 +1,11 @@
+/*===========================================================================*/
+/* File: character.cpp                                                       */
+/* Author: YOAN BERNATCHEZ                                                   */
+/* Created On: 2020-08-15                                                    */
+/* Developed Using: SDL2                                                     */
+/* Function: Provides the user with an easy way to implement characters.     */
+/*===========================================================================*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>

@@ -1,3 +1,12 @@
+/*===========================================================================*/
+/* File: render.cpp                                                          */
+/* Author: YOAN BERNATCHEZ                                                   */
+/* Created On: 2020-09-27                                                    */
+/* Developed Using: SDL2                                                     */
+/* Function: This file provides the user with functions to render chunks and */
+/*           characters.                                                     */
+/*===========================================================================*/
+
 #include "render.h"
 
 typedef struct _RenderObject {

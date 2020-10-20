@@ -10,12 +10,12 @@ static void test_pathfind_get_path (void);
 void
 test_pathfinding (void)
 {
-    printf("\nTesting pathfinding functions...\n\n");
+    printf("\n> Unit testing pathfinding functions...\n\n");
     test_pathfind_get_path();
 }
 
 static void
-test_pathfind_get_path(void)
+test_pathfind_get_path (void)
 {
     EngPath *path;
     int nb_chunks = 4;

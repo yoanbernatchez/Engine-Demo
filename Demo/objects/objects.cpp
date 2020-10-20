@@ -1,3 +1,11 @@
+/*===========================================================================*/
+/* File: objects.cpp                                                         */
+/* Author: YOAN BERNATCHEZ                                                   */
+/* Created On: 2020-10-14                                                    */
+/* Developed Using: SDL2                                                     */
+/* Function: Provides functions to handle game objects.                      */
+/*===========================================================================*/
+
 #include <stdio.h>
 #include <SDL.h>
 #include <SDL_image.h>

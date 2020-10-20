@@ -1,3 +1,11 @@
+/*===========================================================================*/
+/* File: tile.cpp                                                            */
+/* Author: YOAN BERNATCHEZ                                                   */
+/* Created On: 2020-07-18                                                    */
+/* Developed Using: SDL2                                                     */
+/* Function: Provides the user with a way to create tiles and modify them.   */
+/*===========================================================================*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -114,11 +122,11 @@ eng_tile_load_tiles (EngChunk *chunk)
         fseek (file, cursor_index, SEEK_SET);
 
         /* Retrieve and store tile ids. */
-        for (int j = 0; j < TILESX; j++) {
-            for (int i = 0; i < TILESY; i++) {
-                chunk->tile[i][j].id = get_id_from_file (file);
+        for (int y = 0; y < TILESY; y++) {
+            for (int x = 0; x < TILESX; x++) {
+                chunk->tile[x][y].id = get_id_from_file (file);
 
-                if (chunk->tile[i][j].id == -1)
+                if (chunk->tile[x][y].id == -1)
                     error++;
             }
         }

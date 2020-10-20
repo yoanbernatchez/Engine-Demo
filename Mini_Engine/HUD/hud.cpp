@@ -1,11 +1,11 @@
-/*
- * Author: YOAN BERNATCHEZ
- * Date: 2020-08-01
- *
- * This file provides the user with functions to create hud and add components
- * to them. It also allows the user to update and copy hud to the renderer.
- * The main goal was to make the code portable to other SDL projects.
- */
+/*===========================================================================*/
+/* File: hud.cpp                                                             */
+/* Author: YOAN BERNATCHEZ                                                   */
+/* Created On: 2020-08-01                                                    */
+/* Developed Using: SDL2                                                     */
+/* Function: This file provides the user with functions to create hud and    */
+/*           add components to them.                                         */
+/*===========================================================================*/
 
 /*
  * TODO: Create an error message system with __LINE__ and __FILE__ to remove

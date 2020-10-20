@@ -1,3 +1,11 @@
+/*===========================================================================*/
+/* File: wheat.cpp                                                           */
+/* Author: YOAN BERNATCHEZ                                                   */
+/* Created On: 2020-10-15                                                    */
+/* Developed Using: SDL2                                                     */
+/* Function: Update wheat on screen.                                         */
+/*===========================================================================*/
+
 #include "wheat.h"
 #include <stdio.h>
 

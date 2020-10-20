@@ -1,3 +1,11 @@
+/*===========================================================================*/
+/* File: tile.cpp                                                            */
+/* Author: YOAN BERNATCHEZ                                                   */
+/* Created On: 2020-07-18                                                    */
+/* Developed Using: SDL2                                                     */
+/* Function: Provides the user with a way to create tiles and modify them.   */
+/*===========================================================================*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>

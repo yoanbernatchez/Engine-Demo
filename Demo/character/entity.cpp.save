@@ -1,3 +1,11 @@
+/*===========================================================================*/
+/* File: entity.cpp                                                          */
+/* Author: YOAN BERNATCHEZ                                                   */
+/* Created On: 2020-10-15                                                    */
+/* Developed Using: SDL2                                                     */
+/* Function: Provides functions to create and delete entities.               */
+/*===========================================================================*/
+
 #include <stdio.h>
 #include <SDL.h>
 #include <SDL_image.h>
@@ -60,8 +68,8 @@ entity_load_presets (SDL_Window *window, Entity entity[])
     eng_char_create_character (0, 0, 50/2, 75, 50, 75, 25, 20, true);
     entity_create_entity (&entity[0]);
     eng_char_create_timers (&entity[0].character, 2);
-    entity[0].character.x = 40 * TILESIZE;
-    entity[0].character.y = 11 * TILESIZE;
+    entity[0].character.x = 42.5 * TILESIZE;
+    entity[0].character.y = 12.5 * TILESIZE;
     eng_char_center_on_screen (window, &entity[0].character);
 
     /* Entity with id 1 is the bridge villager. */
@@ -79,6 +87,7 @@ entity_load_presets (SDL_Window *window, Entity entity[])
                                75, 40, 40, false);
     entity_create_entity (&entity[2]);
     eng_char_create_timers (&entity[2].character, 2);
+    entity[2].character.action_id = ENTITY_IDLE;
     entity[2].character.speed = 2;
     entity[2].path_id = 0;
 
@@ -88,6 +97,7 @@ entity_load_presets (SDL_Window *window, Entity entity[])
                                75, 40, 40, false);
     entity_create_entity (&entity[3]);
     eng_char_create_timers (&entity[3].character, 2);
+    entity[3].character.action_id = ENTITY_IDLE;
     entity[3].character.speed = 2;
     entity[3].path_id = 0;
 
@@ -98,6 +108,7 @@ entity_load_presets (SDL_Window *window, Entity entity[])
                                50/2, 75, 50, 75, 40, 40, false);
     entity_create_entity (&entity[4]);
     eng_char_create_timers (&entity[4].character, 2);
+    entity[4].character.action_id = ENTITY_IDLE;
     entity[4].character.speed = 2;
     entity[4].path_id = 0;
 
@@ -107,15 +118,17 @@ entity_load_presets (SDL_Window *window, Entity entity[])
                                50/2, 75, 50, 75, 40, 40, false);
     entity_create_entity (&entity[5]);
     eng_char_create_timers (&entity[5].character, 2);
+    entity[5].character.action_id = ENTITY_IDLE;
     entity[5].character.speed = 2;
     entity[5].path_id = 0;
-    
+
     entity[6].character =
     eng_char_create_character (41.5 * TILESIZE,
-                               0.5 * TILESIZE,
+                               0.8 * TILESIZE,
                                50/2, 75, 50, 75, 40, 40, false);
     entity_create_entity (&entity[6]);
     eng_char_create_timers (&entity[6].character, 2);
+    entity[6].character.action_id = ENTITY_IDLE;
     entity[6].character.speed = 2;
     entity[6].path_id = 0;
 }

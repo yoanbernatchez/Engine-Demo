@@ -1,9 +1,17 @@
+/*===========================================================================*/
+/* File: map.cpp                                                             */
+/* Author: YOAN BERNATCHEZ                                                   */
+/* Created On: 2020-10-18                                                    */
+/* Developed Using: SDL2                                                     */
+/* Function: Provides a function that handles changes in the map and updates */
+/*           it.                                                             */
+/*===========================================================================*/
+
 #include <stdbool.h>
 #include "../../Mini_Engine/Chunks/chunk.h"
 #include "../../Mini_Engine/Characters/character.h"
 #include "../objects/objects.h"
 #include "collision.h"
-
 
 /*
  * Keeps the map updated by rotating chunks, setting tile collisions

@@ -1,12 +1,13 @@
-/*
- * Author: YOAN BERNATCHEZ
- * Date: 2020-09-21
- *
- * This file contains a function that registers keyboard, window and
- * mouse events to a structure (EngEvent). The function can be modified
- * to register more events, but EngEvent should also be modified if this
- * is the case.
- */
+/*===========================================================================*/
+/* File: event_handler.cpp                                                   */
+/* Author: YOAN BERNATCHEZ                                                   */
+/* Created On: 2020-09-21                                                    */
+/* Developed Using: SDL2                                                     */
+/* Function: This file contains a function that registers keyboard, window   */
+/*           and mouse events to a structure (EngEvent). The function can be */
+/*           modified to register more events, but EngEvent should also be   */
+/*           modified if this is the case.                                   */
+/*===========================================================================*/
 
 #include "events.h"
 

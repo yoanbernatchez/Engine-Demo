@@ -1,3 +1,12 @@
+/*===========================================================================*/
+/* File: objects.cpp                                                         */
+/* Author: YOAN BERNATCHEZ                                                   */
+/* Created On: 2020-07-22                                                    */
+/* Developed Using: SDL2                                                     */
+/* Function: Provides the user with a way to create, delete and modify       */
+/*           objects.                                                        */
+/*===========================================================================*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "chunk.h"

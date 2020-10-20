@@ -15,7 +15,7 @@ test_pathfinding (void)
 }
 
 static void
-test_pathfind_get_path(void)
+test_pathfind_get_path (void)
 {
     EngPath *path;
     int nb_chunks = 4;
