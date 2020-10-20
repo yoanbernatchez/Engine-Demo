@@ -153,17 +153,17 @@ eng_render_objects (SDL_Renderer *renderer, SDL_Texture *char_text[],
     RenderObject foreground_objects[nb_foreground_objects];
 
     /* Gives values to our array of objects. */
-    init_objects(chunk, background_objects, ENG_RENDER_BACKGROUND, character,
-                 nb_characters);
-    init_objects(chunk, hybrid_objects, ENG_RENDER_HYBRID, character,
-                 nb_characters);
-    init_objects(chunk, foreground_objects, ENG_RENDER_FOREGROUND, character,
-                 nb_characters);
+    init_objects (chunk, background_objects, ENG_RENDER_BACKGROUND, character,
+                  nb_characters);
+    init_objects (chunk, hybrid_objects, ENG_RENDER_HYBRID, character,
+                  nb_characters);
+    init_objects (chunk, foreground_objects, ENG_RENDER_FOREGROUND, character,
+                  nb_characters);
 
     /* Sort the objects based on their y values. */
-    selection_sort(background_objects, nb_background_objects);
-    selection_sort(hybrid_objects, nb_hybrid_objects);
-    selection_sort(foreground_objects, nb_foreground_objects);
+    selection_sort (background_objects, nb_background_objects);
+    selection_sort (hybrid_objects, nb_hybrid_objects);
+    selection_sort (foreground_objects, nb_foreground_objects);
     nb_all_objects = nb_background_objects + nb_hybrid_objects +
                      nb_foreground_objects;
 
