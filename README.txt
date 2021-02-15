@@ -22,22 +22,6 @@ You can run the demo game for the engine by opening the "Engine Demo.exe" file i
 Portfolio/Engine Demo. This demo is released for Windows only at the moment.
 
 =================================================================================
-Word of the Programmer
-=================================================================================
-Born with a  passion for video games, I was always intrigued by the way that they
-worked. This  led me  to become  increasingly  interested in programming  until I
-finally  decided  to give it a go.  At around  14 years  old, I began  learning C
-through  online classes  that were oriented on game developpement. This is when I
-realized  how  fascinating  the  programming  world  was.  Solving  problems  and
-planning  quickly became some of the aspects  I love the most  about programming.
-As I  kept learning more about how  game developpement worked, be it by observing
-how other games  functioned or by learning, I stayed  thrilled by the propesct of
-making my own game one day.
-As a result of this excitement, I have  started giving  considerable efforts into
-game developpement. Consequently, in an effort to acquire a deep understanding of
-the ways that games work, I have decided to start making an engine.
-
-=================================================================================
 Summary of the Engine
 =================================================================================
 Supported Operating Systems: Windows OS (tested),  Mac OS (not tested),  Linux OS
